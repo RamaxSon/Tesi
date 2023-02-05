@@ -1,0 +1,14 @@
+<RCC>
+  <qresource>
+    <file>Icons/Cartella.png</file>
+    <file>Icons/back.png</file>
+    <file>Icons/raw.png</file>
+    <file>Icons/histogram.png</file>
+    <file>Icons/blur.png</file>
+    <file>Icons/brain.png</file>
+    <file>Icons/edit.png</file>
+    <file>Icons/save.png</file>
+    <file>Icons/upload.png</file>
+    <file>Icons/info.png</file>
+  </qresource>
+</RCC>
