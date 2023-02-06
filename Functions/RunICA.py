@@ -4,7 +4,7 @@ from PyQt5 import QtCore, QtGui
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QDoubleValidator
 from PyQt5.QtWidgets import QDialog, QVBoxLayout, QGridLayout, QLabel, QLineEdit, QDialogButtonBox, QCheckBox, \
-     QTreeWidget, QTreeWidgetItem, QPushButton
+    QTreeWidget, QTreeWidgetItem, QPushButton, QMessageBox
 import matplotlib as mpl
 
 """
@@ -239,8 +239,14 @@ class ICAAnalysis(QDialog):
         if not j:
             return
         else:
-            self.ICA.plot_properties(self.signal, picks=indexes, log_scale=True)
-
+            try:
+               self.ICA.plot_properties(self.signal, picks=indexes, log_scale=True)
+            except RuntimeError as e:
+                msg = QMessageBox()
+                msg.setWindowTitle("Operation denied")
+                msg.setText(str(e))
+                msg.setIcon(QMessageBox.Warning)
+                messageError = msg.exec()
     def artifacts(self):
         indexes = []
         j = False
@@ -255,10 +261,24 @@ class ICAAnalysis(QDialog):
             return self.accept()
 
     def Plot_Components(self):
-        self.ICA.plot_components()
+        try:
+           self.ICA.plot_components()
+        except RuntimeError as e:
+            msg = QMessageBox()
+            msg.setWindowTitle("Operation denied")
+            msg.setText(str(e))
+            msg.setIcon(QMessageBox.Warning)
+            messageError = msg.exec()
 
     def Plot_Sources(self):
-        self.ICA.plot_sources(self.signal)
+        try:
+            self.ICA.plot_sources(self.signal)
+        except RuntimeError as e:
+            msg = QMessageBox()
+            msg.setWindowTitle("Operation denied")
+            msg.setText(str(e))
+            msg.setIcon(QMessageBox.Warning)
+            messageError = msg.exec()
 
     def Plot_Overlay(self):
         indexes = []
@@ -269,4 +289,11 @@ class ICAAnalysis(QDialog):
                 j = True
         if not j: return
         else:
-            self.ICA.plot_overlay(self.signal, exclude=indexes)
+            try:
+                self.ICA.plot_overlay(self.signal, exclude=indexes)
+            except RuntimeError as e:
+                msg = QMessageBox()
+                msg.setWindowTitle("Operation denied")
+                msg.setText(str(e))
+                msg.setIcon(QMessageBox.Warning)
+                messageError = msg.exec()

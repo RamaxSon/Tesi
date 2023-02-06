@@ -111,6 +111,12 @@ class Pipeline:
         else:
             self.pipeline.append(x)
 
+    def y(self, x: dict, index:int, rewrite):
+        if rewrite:
+            self.pipeline.pop(index)
+        else:
+            self.pipeline.remove(x)
+
     def updatePipeline(self, Pipeline):
         self.pipeline = Pipeline
 

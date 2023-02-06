@@ -1,0 +1,17 @@
+{
+ "pipeline": [
+  {
+   "OpenFile": {
+    "file": {
+     "type": "str",
+     "value": "C:/Users/zanza/mne_data/MNE-sample-data/MEG/sample/ernoise_raw.fif"
+    }
+   }
+  }
+ ],
+ "imports": [
+  "import mne",
+  "import os",
+  "import OpenFile"
+ ]
+}

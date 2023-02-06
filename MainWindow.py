@@ -300,7 +300,7 @@ class Ui_MainWindow(QMainWindow):
                 if key != "plot":
                     q = "Functions." + key
                     mymodule = importlib.import_module(q)
-                    if (i == 0):
+                    if i == 0:
                         self.signal.append(mymodule.Function().run(self.pipeline.pipeline[i][key]["file"]))
                     else:  # VEDI COSA E COME FARE CON I PLOT
                         if hasattr(mymodule.Function(), "directory"):
@@ -310,11 +310,17 @@ class Ui_MainWindow(QMainWindow):
                             self.signal.append(
                                 mymodule.Function().run(self.pipeline.pipeline[i][key], self.signal[- 1]))
                 else:
-                    # Definisci per il plot la pipeline di default!!!
-                    mymodule = importlib.import_module("Functions.Plot")
-                    plot = self.pipeline.pipeline[i]
-                    f = mymodule.Function(self.signal[-1], plot["plot"], self.pipeline.directory)
-                    f.run()
+                    try:
+                       mymodule = importlib.import_module("Functions.Plot")
+                       plot = self.pipeline.pipeline[i]
+                       f = mymodule.Function(self.signal[-1], plot["plot"], self.pipeline.directory)
+                       f.run()
+                    except RuntimeError as e:
+                        msg = QMessageBox()
+                        msg.setWindowTitle("Operation denied")
+                        msg.setText(str(e))
+                        msg.setIcon(QMessageBox.Warning)
+                        messageError = msg.exec()
         if self.signal:
             """Salvataggio del segnale"""
             self.pipeline.addSignal(self.signal)
@@ -350,24 +356,45 @@ class Ui_MainWindow(QMainWindow):
                             self.pipeline.imports.append("import " + x)
                             self.check = True
 
-                    if diz.keys():
-                        key = list(diz.keys())[0]
-                        if (key == "OpenFile"):
-                            self.signal.append(mymodule.Function().run(self.pipeline.pipeline[-1][key]["file"]))
-                        else:
-                            if hasattr(mymodule.Function(), "directory"):
-                                self.signal.append(mymodule.Function().run(self.pipeline.pipeline[-1][key], self.signal[- 1], self.pipeline.directory))
+                    try:
+                        if diz.keys():
+                            key = list(diz.keys())[0]
+                            if key == "OpenFile":
+                                self.signal.append(mymodule.Function().run(self.pipeline.pipeline[-1][key]["file"]))
                             else:
-                                self.signal.append(mymodule.Function().run(self.pipeline.pipeline[-1][key], self.signal[- 1]))
-                    else:
-                        pass
+                                if hasattr(mymodule.Function(), "directory"):
+                                    self.signal.append(
+                                        mymodule.Function().run(self.pipeline.pipeline[-1][key], self.signal[- 1],
+                                                                self.pipeline.directory))
+                                else:
+                                    self.signal.append(
+                                        mymodule.Function().run(self.pipeline.pipeline[-1][key], self.signal[- 1]))
+                        else:
+                            pass
+                    except RuntimeError as e:
+                        msg = QMessageBox()
+                        msg.setWindowTitle("Operation denied")
+                        msg.setText(str(e))
+                        msg.setIcon(QMessageBox.Warning)
+                        messageError = msg.exec()
+                        self.pipeline.y(diz,0,False)
+                        self.pipeline.imports.remove("import " + x)
+
+
 
     def execPlot(self):
         if self.signal:
-            mymodule = importlib.import_module("Functions.Plot")
-            plot = self.pipeline.pipeline[-1]
-            f = mymodule.Function(self.signal[-1], plot["plot"], self.pipeline.directory)
-            f.run()
+            try:
+                mymodule = importlib.import_module("Functions.Plot")
+                plot = self.pipeline.pipeline[-1]
+                f = mymodule.Function(self.signal[-1], plot["plot"], self.pipeline.directory)
+                f.run()
+            except RuntimeError as e:
+                msg = QMessageBox()
+                msg.setWindowTitle("Operation denied")
+                msg.setText(str(e))
+                msg.setIcon(QMessageBox.Warning)
+                messageError = msg.exec()
         else:
             pass
 
