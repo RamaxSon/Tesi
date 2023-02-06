@@ -37,22 +37,15 @@ class Function:
         self.parameters["n_components"]["type"] = "float"
         self.parameters["n_components"]["value"] = None
         self.parameters["n_components"]["default"] = None
-        self.parameters["n_components"][
-            "desc"] = "-Greater than 1 and less than or equal to the number of channels,\n  select number of channels -> int value;\n-Between 0 and 1, Will select the smallest number of components \n  required to explain the cumulative variance of the data greater than n_components -> float value;\n-None --> 0.999999 is the default value for this parameter."
+        self.parameters["n_components"]["desc"] = "-Greater than 1 and less than or equal to the number of channels,\n  select number of channels -> int value;\n-Between 0 and 1, Will select the smallest number of components \n  required to explain the cumulative variance of the data greater than n_components -> float value;\n-None --> 0.999999 is the default value for this parameter."
         numC = numComp(self.parameters, "Fit Params", signal.info["nchan"])
         numC.setWindowFlags(numC.windowFlags() & ~Qt.WindowContextHelpButtonHint)
         numC.setWindowFlags(numC.windowFlags() | Qt.WindowMinimizeButtonHint)
         if numC.exec():
             self.parameters["n_components"]["value"] = numC.result()
             fit_params = {}
-            if (self.parameters["method"]["value"] != "picard"):
+            if self.parameters["method"]["value"] != "picard":
                 fit_params["extended"] = self.parameters["method"]["others"]["extends"]
-                """
-               if(self.parameters["method"]["value"] != "infomax"):
-                     fit_params["ortho"] = False
-               else:
-                   fit_params["ortho"] = True
-               """
             signal.filter(l_freq=1., h_freq=None)  # ICA works best with a highpass filter applied
             if len(fit_params.keys()) > 1:
                 ica = mne.preprocessing.ICA(n_components=self.parameters["n_components"]["value"],
@@ -71,10 +64,11 @@ class Function:
             Analysis.setWindowFlags(Analysis.windowFlags() & ~Qt.WindowContextHelpButtonHint)
             Analysis.setWindowFlags(Analysis.windowFlags() | Qt.WindowMinimizeButtonHint)
             if Analysis.exec():
-                if Analysis.excluded != None:
+                if Analysis.excluded is not None:
                     ica.apply(signal, exclude=Analysis.excluded)
-                return signal
-            # Fai finestra di caricamento frateeeeee
+            return signal
+        else:
+            return signal #Nessuna Modifica
 
 
 class numComp(QDialog):
@@ -89,7 +83,7 @@ class numComp(QDialog):
         self.others = {}
         left = 0
         right = 0
-        validator = QDoubleValidator()  # fai float
+        validator = QDoubleValidator()  #Float validator
         validator.setRange(0, limit)
         key = "n_components"
         grid.addWidget(QLabel(key), left, right)
