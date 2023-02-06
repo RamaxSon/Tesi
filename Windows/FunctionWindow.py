@@ -30,7 +30,7 @@ class FunctionWindow(QDialog):
                     self.checkCheckable = 12
                     self.others[key] = self.param[key]["others"]
             elif(self.param[key]["value"] != None):
-                self.edit[key].setText(self.param[key]["value"])
+                self.edit[key].setText(str(self.param[key]["value"]))
             else:
                 self.edit[key].setText(self.param[key]["default"])
             right += 1

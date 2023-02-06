@@ -73,7 +73,7 @@ class Function:
             if Analysis.exec():
                 if Analysis.excluded != None:
                     ica.apply(signal, exclude=Analysis.excluded)
-                    return signal
+                return signal
             # Fai finestra di caricamento frateeeeee
 
 
@@ -176,7 +176,12 @@ class ICAAnalysis(QDialog):
         self.listwidget.setHeaderLabels(['Item', 'Properties', 'Artifact'])
         for i in range(0, components):
             item = QTreeWidgetItem(self.listwidget)
-            item.setText(0, "ICA0"+str(i))
+            if i<10:
+                item.setText(0, "ICA00"+str(i))
+            elif i<100:
+                item.setText(0, "ICA0" + str(i))
+            else:
+                item.setText(0, "ICA" + str(i))
             item.setCheckState(1, QtCore.Qt.Unchecked)
             item.setCheckState(2, QtCore.Qt.Unchecked)
             self.listwidget.addTopLevelItem(item)

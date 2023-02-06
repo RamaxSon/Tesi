@@ -5,7 +5,7 @@ from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QMainWindow
 from mne import channel_type
 import os
-import inspect #Controllare presenza o meno di window
+import inspect  # Controllare presenza o meno di window
 from Pipeline import Pipeline
 from Segnale import Segnale
 from Windows.channel import ChannelProperties
@@ -28,7 +28,7 @@ class Ui_MainWindow(QMainWindow):
     def setupUi(self, MainWindow):
 
         MainWindow.setObjectName("NeuroClean")
-        MainWindow.setStyleSheet("background-color:#8C8C8C;")  #7E7E7E variante del colore
+        MainWindow.setStyleSheet("background-color:#8C8C8C;")  # 7E7E7E variante del colore
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setAutoFillBackground(True)
         self.centralwidget.setObjectName("centralwidget")
@@ -62,7 +62,7 @@ class Ui_MainWindow(QMainWindow):
                                       "background: transparent; border-radius:10%;\n"
                                       "")
         self.saveButton.setShortcut("Ctrl+S")
-        self.saveButton.clicked.connect(self.savePipeline)  #PyQt salvare file ecc
+        self.saveButton.clicked.connect(self.savePipeline)  # PyQt salvare file ecc
 
         # Bottone per caricare una pipeline già esistente
         self.loadButton = QtWidgets.QPushButton(self.centralwidget)
@@ -88,8 +88,6 @@ class Ui_MainWindow(QMainWindow):
         self.infoButton.setShortcut("Ctrl+I")
         self.infoButton.clicked.connect(self.infoSignal)
 
-
-
         self.label.setGeometry(QtCore.QRect(5, 5, 510, 380))
         MainWindow.resize(589, 390)
         MainWindow.setMinimumSize(589, 390)
@@ -103,7 +101,7 @@ class Ui_MainWindow(QMainWindow):
         self.Plot.setStyleSheet("border-image:url(:Icons/blur.png);\n"
                                 "background: white; border-radius:5%;\n"
                                 "")
-        self.Plot.clicked.connect(self.pipeline.plot_locations) # plot location dei segnali
+        self.Plot.clicked.connect(self.pipeline.plot_locations)  # plot location dei segnali
         self.Plot.clicked.connect(self.execPlot)
 
         # Bottone per plottare la Densità Spettrale di Potenza(psd) del segnale.
@@ -114,7 +112,7 @@ class Ui_MainWindow(QMainWindow):
         self.Plot.setStyleSheet("border-image:url(:Icons/histogram.png);\n"
                                 "background: white; border-radius:5%;\n"
                                 "")
-        self.Plot.clicked.connect(self.pipeline.plot_psd) # plot del PSD, i.e., Densità Spettrale di Potenza
+        self.Plot.clicked.connect(self.pipeline.plot_psd)  # plot del PSD, i.e., Densità Spettrale di Potenza
         self.Plot.clicked.connect(self.execPlot)
 
         # Bottone per plottare i dati grezzi
@@ -126,10 +124,10 @@ class Ui_MainWindow(QMainWindow):
                                 "background: white; border-radius:10%;\n"
                                 "")
         self.Plot.setToolTip("Plot of raw data")
-        self.Plot.clicked.connect(self.pipeline.plot_data) # plot dei dati grezzi
+        self.Plot.clicked.connect(self.pipeline.plot_data)  # plot dei dati grezzi
         self.Plot.clicked.connect(self.execPlot)
 
-        #(RICORDA: SALVARE PIPELINE.JSON + PIPELINE.PY +SEGNALE.EDF)
+        # (RICORDA: SALVARE PIPELINE.JSON + PIPELINE.PY +SEGNALE.EDF)
         self.operazioni = QComboBox(self.centralwidget)
         view = QListView(self.operazioni)
         self.operazioni.setGeometry(QtCore.QRect(20, 335, 225, 33))  # METTI IN LAYOUT
@@ -197,87 +195,6 @@ class Ui_MainWindow(QMainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("NeuroClean", "NeuroClean"))
 
-    # Cosa ho preso dalla pipeline
-    def clickersrt(self):
-        x = self.operazioni.currentText()
-        if (self.check == True):
-            if (x == "Detect automatically the artifacts"):
-                pass
-            elif (x == "Channel properties"):
-                info = self.segnale.return_info()
-                X = ChannelProperties(info)
-                if X.exec():
-                    X.model.sort(0)
-                    bads = []
-                    renamed = {}
-                    types = {}
-                    for i in range(X.model.rowCount()):
-                        new_label = X.model.item(i, 1).data(Qt.DisplayRole)
-                        old_label = info["ch_names"][i]
-                        if new_label != old_label:
-                            renamed[old_label] = new_label
-                        new_type = X.model.item(i, 2).data(Qt.DisplayRole).lower()
-                        old_type = channel_type(info, i).lower()
-                        if new_type != old_type:
-                            types[new_label] = new_type
-                        if X.model.item(i, 3).checkState() == Qt.Checked:
-                            bads.append(info["ch_names"][i])
-                    self.segnale.set_channel_properties(bads)
-                    if (self.rewrite):
-                        self.pipeline.modify((f"channel_propeties.data.info['bads'] = {bads}"),
-                                             {"channel_propeties_bads": bads}, self.indexModify)
-                        self.rewrite = False
-                    else:
-                        self.pipeline.x((f"channel_propeties.data.info['bads'] = {bads}"),
-                                        {"channel_propeties_bads": bads})
-            elif (x == "Info of the signal"):
-                print(self.segnale.return_info())
-                self.x = InfoWindow(self.segnale.return_info())
-                self.x.show()
-                self.label.setText("Complete information about the signal are printed in the terminal")
-            elif (x == "View the current pipeline"):
-                y = ('\n'.join(map(str, self.pipeline.return_pipeline())))
-                Z = PipelineWindow(self.pipeline)
-                if Z.exec():
-                    self.indexModify = Z.index
-                    if (self.indexModify != None):
-                        codice = self.pipeline.operations[self.indexModify][0]
-                        self.rewrite = True
-                        print(codice)
-                        if (codice == "load_data"):
-                            self.operazioni.setCurrentText("Select an input file")
-                            self.clicker()
-                        elif (codice == "channel_propeties_bads"):
-                            self.operazioni.setCurrentText("Channel properties")
-                            self.clicker()
-                        elif (codice == "filter"):
-                            self.operazioni.setCurrentText("Filtering Signal")
-                            self.clicker()
-            elif (x == "Filtering Signal"):
-                Z = FilterSignal()
-                if Z.exec():
-                    low = Z.low()
-                    high = Z.high()
-                    if ((high != None) or (low != None)):
-                        z = self.segnale.filtering(low, high)
-                        if (z == 1):
-                            str1 = f"signal.bandpass.filter = [" + str(low) + " , " + str(high) + "]"
-                            # str2 = {"filter" : [low, high]}
-                        elif (z == 2):
-                            str1 = f"signal.highpass.filter = [" + str(high) + "]"
-                            # str2 = ["filter", [low, high]]
-                        elif (z == 3):
-                            str1 = f"signal.lowpass.filter = [" + str(low) + "]"
-                            # str2 = ["filter", [low, high]]
-                        str2 = {"filter": [low, high]}
-
-                        if (self.rewrite):
-                            self.pipeline.x(str1, str2, self.indexModify, self.rewrite)
-                            self.rewrite = False
-                        else:
-                            self.pipeline.x(str1, str2, 0, self.rewrite)
-                            self.rewrite = True
-
     def clicker(self):
         x = self.operazioni.currentText()
         diz = {}
@@ -285,18 +202,18 @@ class Ui_MainWindow(QMainWindow):
             if y == x:
                 q = "Functions." + x
                 mymodule = importlib.import_module(q)
-                check = self.checkWindow(x)  #Utilizzata per controllare se la funzione ha una finestra già implementata
+                check = self.checkWindow(x)  # Utilizzata per controllare se la funzione ha una finestra già implementata
 
                 f = mymodule.Function()
 
-                if check:  #La funzione ha una sua personale finestra °organizza bene questo if sul rewrite
+                if check:  # La funzione ha una sua personale finestra °organizza bene questo if sul rewrite
                     if self.rewrite:
                         for key in self.pipeline.pipeline[self.indexModify][x].keys():
                             f.parameters[key]["value"] = self.pipeline.pipeline[self.indexModify][x][key]["value"]
                     window = mymodule.Window(f.parameters)
                     window.setWindowFlags(window.windowFlags() & ~Qt.WindowContextHelpButtonHint)
                     window.setWindowFlags(window.windowFlags() | Qt.WindowMinimizeButtonHint)
-                    if window.exec() and window.result():  #window.result() sostituiscilo con segnale reject
+                    if window.exec() and window.result():  # window.result() sostituiscilo con segnale reject
                         f.new(window.result())
                         diz[x] = f.parameters
                         if self.rewrite:
@@ -305,10 +222,10 @@ class Ui_MainWindow(QMainWindow):
                             self.check = True
                         else:
                             self.pipeline.x(diz, 0, self.rewrite)
-                            self.pipeline.imports.append("import "+x)
+                            self.pipeline.imports.append("import " + x)
                             self.check = True
-                else:  #Si utilizza la window di default
-                    if(self.rewrite):
+                else:  # Si utilizza la window di default
+                    if (self.rewrite):
                         for key in self.pipeline.pipeline[self.indexModify][x].keys():
                             f.parameters[key]["value"] = self.pipeline.pipeline[self.indexModify][x][key]["value"]
                     X = FunctionWindow(f.parameters, x)
@@ -325,7 +242,6 @@ class Ui_MainWindow(QMainWindow):
                             self.pipeline.x(diz, 0, self.rewrite)
                             self.pipeline.imports.append("import " + x)
                             self.check = True
-
 
     # Caricamento nella main window del segnale
     def SetSignal(self, signal: Segnale):
@@ -349,8 +265,11 @@ class Ui_MainWindow(QMainWindow):
                 pass
 
     def savePipeline(self):
-        name = QFileDialog.getSaveFileName(caption = "Choose the directory where save your work")
-        print(name)
+        if self.pipeline.directory != "":
+            name = QFileDialog.getSaveFileName(caption="Choose the directory where save your work",
+                                               directory=self.pipeline.directory)
+        else:
+            name = QFileDialog.getSaveFileName(caption="Choose the directory where save your work")
         self.pipeline.save(name[0])
 
     def loadPipeline(self):
@@ -384,11 +303,14 @@ class Ui_MainWindow(QMainWindow):
                     if (i == 0):
                         self.signal.append(mymodule.Function().run(self.pipeline.pipeline[i][key]["file"]))
                     else:  # VEDI COSA E COME FARE CON I PLOT
-                        if hasattr(mymodule.Function(), "directory"): self.signal.append(mymodule.Function().run(self.pipeline.pipeline[i][key], self.signal[- 1], self.pipeline.directory))
+                        if hasattr(mymodule.Function(), "directory"):
+                            self.signal.append(mymodule.Function().run(self.pipeline.pipeline[i][key], self.signal[- 1],
+                                                                       self.pipeline.directory))
                         else:
-                            self.signal.append(mymodule.Function().run(self.pipeline.pipeline[i][key], self.signal[- 1]))
+                            self.signal.append(
+                                mymodule.Function().run(self.pipeline.pipeline[i][key], self.signal[- 1]))
                 else:
-                    #Definisci per il plot la pipeline di default!!!
+                    # Definisci per il plot la pipeline di default!!!
                     mymodule = importlib.import_module("Functions.Plot")
                     plot = self.pipeline.pipeline[i]
                     f = mymodule.Function(self.signal[-1], plot["plot"], self.pipeline.directory)
@@ -407,7 +329,8 @@ class Ui_MainWindow(QMainWindow):
                     q = "Functions." + x
                     mymodule = importlib.import_module(q)
                     f = mymodule.Function()
-                    check = self.checkWindow(x)  #Controlla la presenza o meno della finestra din default per la funzione in escuzione
+                    check = self.checkWindow(
+                        x)  # Controlla la presenza o meno della finestra din default per la funzione in escuzione
 
                     diz = {}
                     if check:  # La funzione ha una sua personale finestra °organizza bene questo if sul rewrite
@@ -432,8 +355,10 @@ class Ui_MainWindow(QMainWindow):
                         if (key == "OpenFile"):
                             self.signal.append(mymodule.Function().run(self.pipeline.pipeline[-1][key]["file"]))
                         else:
-                            self.signal.append(
-                                mymodule.Function().run(self.pipeline.pipeline[-1][key], self.signal[- 1]))
+                            if hasattr(mymodule.Function(), "directory"):
+                                self.signal.append(mymodule.Function().run(self.pipeline.pipeline[-1][key], self.signal[- 1], self.pipeline.directory))
+                            else:
+                                self.signal.append(mymodule.Function().run(self.pipeline.pipeline[-1][key], self.signal[- 1]))
                     else:
                         pass
 
@@ -444,9 +369,9 @@ class Ui_MainWindow(QMainWindow):
             f = mymodule.Function(self.signal[-1], plot["plot"], self.pipeline.directory)
             f.run()
         else:
-           pass
+            pass
 
-    def checkWindow(self, function : str):
+    def checkWindow(self, function: str):
         test = os.path.join("Functions", function + ".py")
         with open(test) as temp_f:
             datafile = temp_f.readlines()

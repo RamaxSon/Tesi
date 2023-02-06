@@ -12,25 +12,28 @@ class Pipeline:
         self.programma = ""
         self.imports = ["import mne", "import os"]  # VEDITI COME CANCELLARE ELEMENTI RIPETUTI IN UNA LISTA!!!!!
         self.rewrite = False
+        self.directory =""
 
 
     def Directory(self, nomefile):
         from datetime import datetime
-        self.directory = ""
         tmp = nomefile.split("/")
         self.pipesave = tmp[len(tmp) - 1]
-        tmp[len(tmp) - 1] = "PipelineWork_" + str(datetime.today().strftime('%Y%m%d_%H%M'))
-        for x in tmp:
-            self.directory += x + "/"
+        if self.directory == "":
+            tmp[len(tmp) - 1] = "PipelineWork_" + str(datetime.today().strftime('%Y%m%d_%H%M'))
+            for x in tmp:
+                self.directory += x + "/"
 
-
-    # Far salvare nome file come "/tmp/nomefile" SIUUUUM
     def save(self, nomefile: str):
         import json
-        self.Directory(nomefile)
-        os.mkdir(self.directory)
-        nomefile = self.directory + self.pipesave
+        if self.directory == "":
+            self.Directory(nomefile)
+            os.mkdir(self.directory)
+        else:
+            self.Directory(nomefile)
+        print(self.directory)
         nomeprogramma = self.directory + "codice.py"
+        nomefile = self.directory + self.pipesave
 
         # CODICE
         file = open(nomeprogramma, "w")
@@ -48,7 +51,7 @@ class Pipeline:
         if self.signal is not None:  # Funzione esterna va fatta
             from datetime import datetime
             nomesig = self.directory + "signal" + str(datetime.today().strftime('%H%M'))+".fif"
-            self.signal[-1].save(nomesig)
+            self.signal[-1].save(nomesig, overwrite=True)
         else:
             pass
 
