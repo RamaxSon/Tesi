@@ -1,7 +1,5 @@
 import mne
-from PyQt5 import QtWidgets, QtGui, QtCore
-from PyQt5.QtGui import QIntValidator
-from PyQt5.QtWidgets import QDialog, QVBoxLayout, QGridLayout, QLabel, QLineEdit, QDialogButtonBox, QWidget, QMessageBox
+from PyQt5.QtWidgets import QMessageBox
 
 
 class Function:
@@ -9,7 +7,8 @@ class Function:
     def __init__(self):
         self.self = True
         self.parameters = {"lowpass": {"type": "int", "value": None, "default": "0"},
-            "highpass": {"type": "int", "value": None, "default": "0"}}
+            "highpass": {"type": "int", "value": None, "default": "0"},
+                "notch": {"type": "int", "value": None, "default": "0"}}
 
     def new(self, args): #filter, high, low
         for key in args.keys():
@@ -28,7 +27,10 @@ class Function:
                     self.parameters["lowpass"]["value"] <= self.parameters["highpass"]["value"]):  # passaBanda
                 return signal.filter(l_freq=self.parameters["lowpass"]["value"],
                                      h_freq=self.parameters["highpass"]["value"])
-            else:
+            elif self.parameters["highpass"]["value"] == 0 and self.parameters["lowpass"]["value"] == 0 and (
+                    self.parameters["notch"]["value"] != 0):
+                return signal.notch_filter(self.parameters["notch"]["value"])
+            else:  
                 return signal
         except ValueError as e:
            msg = QMessageBox()
