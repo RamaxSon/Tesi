@@ -1,17 +1,12 @@
-import numpy
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import QComboBox, QListView, QWidget, QMessageBox, QFileDialog
+from PyQt5.QtWidgets import QComboBox, QListView, QMessageBox, QFileDialog
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QMainWindow
-from mne import channel_type
 import os
-import inspect  # Controllare presenza o meno di window
 from Pipeline import Pipeline
 from Segnale import Segnale
-from Windows.channel import ChannelProperties
 from Windows.PipeWindow import PipelineWindow
 from Windows.InfoWindow import InfoWindow
-from Windows.FilteringSignal import FilterSignal
 from Windows.FunctionWindow import FunctionWindow
 import importlib
 
@@ -22,7 +17,7 @@ class Ui_MainWindow(QMainWindow):
         self.pipeline = Pipeline()
         self.signal = []
         self.check = False
-        self.str = ""
+        #self.str = ""
         self.rewrite = False
 
     def setupUi(self, MainWindow):

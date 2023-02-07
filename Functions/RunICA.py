@@ -154,7 +154,6 @@ class ICAAnalysis(QDialog):
         self.setWindowTitle(FunctionName)
         self.ICA = ICA
         self.signal = Signal
-        #self.setStyleSheet("background-color:#EFEFEF")
         self.inspect = []
         self.artifact = []
         layout = QGridLayout()

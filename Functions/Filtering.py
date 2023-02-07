@@ -1,7 +1,8 @@
 import mne
 from PyQt5 import QtWidgets, QtGui, QtCore
 from PyQt5.QtGui import QIntValidator
-from PyQt5.QtWidgets import QDialog, QVBoxLayout, QGridLayout, QLabel, QLineEdit, QDialogButtonBox, QWidget
+from PyQt5.QtWidgets import QDialog, QVBoxLayout, QGridLayout, QLabel, QLineEdit, QDialogButtonBox, QWidget, QMessageBox
+
 
 class Function:
 
@@ -16,14 +17,24 @@ class Function:
 
     def run(self, args, signal : mne.io.read_raw):
         self.new(args)
-        if self.parameters["lowpass"]["value"] != 0 and self.parameters["highpass"]["value"] == 0: #passaBasso
-            return signal.filter(h_freq=self.parameters["lowpass"]["value"], l_freq=None)
+        try:
+            if self.parameters["lowpass"]["value"] != 0 and self.parameters["highpass"]["value"] == 0:  # passaBasso
+                return signal.filter(h_freq=self.parameters["lowpass"]["value"], l_freq=None)
 
-        elif self.parameters["highpass"]["value"] != 0 and self.parameters["lowpass"]["value"] == 0:  # passaAlto
-            return signal.filter(l_freq=self.parameters["highpass"]["value"], h_freq=None)
+            elif self.parameters["highpass"]["value"] != 0 and self.parameters["lowpass"]["value"] == 0:  # passaAlto
+                return signal.filter(l_freq=self.parameters["highpass"]["value"], h_freq=None)
 
-        elif self.parameters["highpass"]["value"] != 0 and self.parameters["lowpass"]["value"] != 0 and (self.parameters["lowpass"]["value"] <= self.parameters["highpass"]["value"]):  # passaBanda
-            return signal.filter(l_freq=self.parameters["lowpass"]["value"], h_freq=self.parameters["highpass"]["value"])
-        else:
-            return signal #No Change?
+            elif self.parameters["highpass"]["value"] != 0 and self.parameters["lowpass"]["value"] != 0 and (
+                    self.parameters["lowpass"]["value"] <= self.parameters["highpass"]["value"]):  # passaBanda
+                return signal.filter(l_freq=self.parameters["lowpass"]["value"],
+                                     h_freq=self.parameters["highpass"]["value"])
+            else:
+                return signal
+        except ValueError as e:
+           msg = QMessageBox()
+           msg.setWindowTitle("Operation denied")
+           msg.setText(str(e))
+           msg.setIcon(QMessageBox.Warning)
+           messageError = msg.exec()
+           return signal
 
