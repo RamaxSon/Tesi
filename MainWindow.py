@@ -152,6 +152,7 @@ class Ui_MainWindow(QMainWindow):
         self.applica.setStyleSheet("background-color: white; font: 75 13pt \"Yu Gothic\";")
         self.applica.clicked.connect(self.clicker)
         self.applica.setText("Add")
+        self.applica.setToolTip("Add a step to the current pipeline")
 
         self.run = QtWidgets.QPushButton(self.centralwidget)
         self.run.setGeometry(QtCore.QRect(335, 335, 70, 33))
