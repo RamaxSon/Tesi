@@ -24,6 +24,7 @@ class Ui_MainWindow(QMainWindow):
 
         MainWindow.setObjectName("NeuroClean")
         MainWindow.setStyleSheet("background-color:#8C8C8C;")  # 7E7E7E variante del colore
+        MainWindow.setWindowFlags(MainWindow.windowFlags() & ~Qt.WindowMaximizeButtonHint)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setAutoFillBackground(True)
         self.centralwidget.setObjectName("centralwidget")

@@ -30,7 +30,7 @@ class Function:
             elif self.parameters["highpass"]["value"] == 0 and self.parameters["lowpass"]["value"] == 0 and (
                     self.parameters["notch"]["value"] != 0):
                 return signal.notch_filter(self.parameters["notch"]["value"])
-            else:  
+            else:
                 return signal
         except ValueError as e:
            msg = QMessageBox()
