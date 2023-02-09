@@ -79,33 +79,12 @@ class Window(QDialog):
             self.reject()
 
     def getFileName(self):
-        # supported read file formats
-        supported = {
-            ".edf": mne.io.read_raw_edf,
-            ".bdf": mne.io.read_raw_bdf,
-            ".gdf": mne.io.read_raw_gdf,
-            # ".vhdr": mne.io.read_raw_brainvision,
-            ".fif": mne.io.read_raw_fif,
-            ".fif.gz": mne.io.read_raw_fif,
-            # ".set": mne.io.read_raw_eeglab,
-            # ".cnt": mne.io.read_raw_cnt,
-            # ".mff": mne.io.read_raw_egi,
-            # ".nxe": mne.io.read_raw_eximia,
-            # ".hdr": mne.io.read_raw_nirx,
-            # ".snirf": mne.io.read_raw_snirf,
-            #  ".xdf": read_raw_xdf,
-            # ".xdfz": read_raw_xdf,
-            # ".xdf.gz": read_raw_xdf,
-            # ".mat": read_raw_mat,
-        }
-
         file_filter = 'Data File (*.xlsx *.csv *.dat);; Excel File (*.xlsx *.xls)'
         response = QFileDialog.getOpenFileName(
             parent=self,
             caption='Select a data file',
             directory=os.getcwd(),
             # filter='MNE File (*.fif);',
-            #  initialFilter='Excel File (*.xlsx *.xls)'
         )
         if response[0] != '':
             self.openFile(response[0])

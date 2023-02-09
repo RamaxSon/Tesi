@@ -3,8 +3,6 @@ import mne
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QWidget, QPushButton, QFileDialog, QMessageBox, QHBoxLayout, QDialog
 import resource
-from Segnale import Segnale
-
 
 # Classe utilizzata per la scelta del file .fif, se tutto è andato bene passa il controllo alla Main Window
 class FileWindow(QDialog):
@@ -57,7 +55,7 @@ class FileWindow(QDialog):
     def openFile(self, stringa: str):
         try:
             # Caricamento del segnale in memoria
-            self.Signal = Segnale(stringa)
+           # self.Signal = Segnale(stringa)
             self.Pipeline = ("load.data: (" + stringa + ")")
             self.file = stringa
             self.accept()

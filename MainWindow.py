@@ -4,7 +4,6 @@ from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QMainWindow
 import os
 from Pipeline import Pipeline
-from Segnale import Segnale
 from Windows.PipeWindow import PipelineWindow
 from Windows.InfoWindow import InfoWindow
 from Windows.FunctionWindow import FunctionWindow
@@ -17,7 +16,6 @@ class Ui_MainWindow(QMainWindow):
         self.pipeline = Pipeline()
         self.signal = []
         self.check = False
-        #self.str = ""
         self.rewrite = False
 
     def setupUi(self, MainWindow):
@@ -180,7 +178,7 @@ class Ui_MainWindow(QMainWindow):
         path = ("Functions")
         self.dir = []
         for i in os.listdir(path):
-            if (i != "__pycache__" and i != "Plot.py"):
+            if i != "__pycache__" and i != "Plot.py":
                 self.dir.append(i.rstrip(".py"))
         for x in self.dir:
             self.operazioni.addItem(x.rstrip(".py"))
@@ -224,7 +222,7 @@ class Ui_MainWindow(QMainWindow):
                             self.pipeline.imports.append("import " + x)
                             self.check = True
                 else:  # Si utilizza la window di default
-                    if (self.rewrite):
+                    if self.rewrite:
                         for key in self.pipeline.pipeline[self.indexModify][x].keys():
                             f.parameters[key]["value"] = self.pipeline.pipeline[self.indexModify][x][key]["value"]
                     X = FunctionWindow(f.parameters, x)
@@ -243,7 +241,7 @@ class Ui_MainWindow(QMainWindow):
                             self.check = True
 
     """Caricamento nella Main Window del segnale """
-    def SetSignal(self, signal: Segnale):
+    def SetSignal(self, signal):
         self.segnale = signal
 
     """Modifica di uno step della pipeline"""
@@ -279,7 +277,6 @@ class Ui_MainWindow(QMainWindow):
             caption='Select pipeline',
             directory=os.getcwd(),
             filter='JSON File (*.json);',
-            #  initialFilter='Excel File (*.xlsx *.xls)'
         )
         if name[0] != '':
             self.pipeline.load(name[0])

@@ -4,7 +4,6 @@ from PyQt5.QtWidgets import (
   QDialog,
   QStyledItemDelegate,
   QComboBox,
-  QAbstractItemDelegate,
   QDialogButtonBox,
   QVBoxLayout,
   QAbstractItemView,
@@ -23,7 +22,6 @@ class ChannelProperties(QDialog):
         super().__init__()
         self.setObjectName("Channel Properties")
         self.setWindowTitle("Channel Properties")
-        #self.setStyleSheet("background-color:#4c88ff;")
         self.resize(431, 431)
 
         self.model = QStandardItemModel(info["nchan"], 4)

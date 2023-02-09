@@ -6,6 +6,7 @@ class FunctionWindow(QDialog):
     """
     Finestra di default per le funzioni
     """
+
     def __init__(self, Parameters: dict, FunctionName: str):
         super().__init__()
         self.setWindowTitle(FunctionName)  # Ricordati di eliminare filter
@@ -22,14 +23,14 @@ class FunctionWindow(QDialog):
         for key in self.param.keys():
             grid.addWidget(QLabel(key), left, right)
             self.edit[key] = QLineEdit()
-            if ("options" in self.param[key].keys()):
+            if "options" in self.param[key].keys():
                 self.edit[key] = QComboBox()
                 self.edit[key].addItems(self.param[key]["options"])
                 self.edit[key].setCurrentIndex(0)
-                if("others" in self.param[key].keys()):
+                if "others" in self.param[key].keys():
                     self.checkCheckable = 12
                     self.others[key] = self.param[key]["others"]
-            elif(self.param[key]["value"] != None):
+            elif self.param[key]["value"] != None:
                 self.edit[key].setText(str(self.param[key]["value"]))
             else:
                 self.edit[key].setText(self.param[key]["default"])
@@ -37,9 +38,9 @@ class FunctionWindow(QDialog):
             grid.addWidget(self.edit[key], left, right)
             right -= 1
             left += 1
-            if(self.checkCheckable is not None):
+            if self.checkCheckable is not None:
                 self.checkCheckable = None
-                if (self.others[key]["type"] == "bool"):
+                if self.others[key]["type"] == "bool":
                     label = QLabel(list(self.others[key].keys())[1])
 
                     grid.addWidget(label, left, right)
@@ -49,11 +50,10 @@ class FunctionWindow(QDialog):
                     grid.addWidget(self.others[key]["value"], left, right)
                     right -= 1
                     left += 1
-            if (self.param[key]["type"] == "int"):  # Per str(QregExp) e float(QDouble) aspetta
+            if self.param[key]["type"] == "int":  # Per str(QregExp) e float(QDouble) aspetta
                 self.edit[key].setValidator(onlyInt)
-            if ("desc" in self.param[key].keys()):
+            if "desc" in self.param[key].keys():
                 self.edit[key].setToolTip(self.param[key]["desc"])
-
 
         vbox.addLayout(grid)
         self.buttonbox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
@@ -64,6 +64,7 @@ class FunctionWindow(QDialog):
         vbox.setSizeConstraint(QVBoxLayout.SetFixedSize)
 
     """Restituzione del risultato"""
+
     def result(self):
         x = {}
         for key in self.param.keys():
@@ -80,9 +81,9 @@ class FunctionWindow(QDialog):
                             x[key]["others"]["extends"] = False
                             x[key]["others"].pop("value")
             elif str(self.edit[key].text()) != "":
-               x[key] ={"type" : self.param[key]["type"], "value" : self.edit[key].text()}
-               if x[key]["type"] == "int" and x[key]["value"].isdigit():
-                   x[key]["value"] = int(x[key]["value"])
+                x[key] = {"type": self.param[key]["type"], "value": self.edit[key].text()}
+                if x[key]["type"] == "int" and x[key]["value"].isdigit():
+                    x[key]["value"] = int(x[key]["value"])
             else:
                 x[key] = {"type": self.param[key]["type"], "value": self.param[key]["default"]}
         return x

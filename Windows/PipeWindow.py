@@ -8,7 +8,7 @@ from Pipeline import *
 
 class PipelineWindow(QDialog):
 
-    def __init__(self, Pipeline : Pipeline):
+    def __init__(self, Pipeline: Pipeline):
         super().__init__()
         self.index = None
         self.setObjectName("Pipeline")
@@ -38,19 +38,19 @@ class PipelineWindow(QDialog):
         self.buttonSwap.setToolTip("Click to swap the position of two steps")
         self.buttonSwap.setText("Swap")
         self.buttonSwap.setStyleSheet("background-color: #4CAF50; border: none; color: white; padding: 6px 12px; \n"
-                                          "text-align: center; text-decoration: none; display: inline-block; font-size: 12px;")
+                                      "text-align: center; text-decoration: none; display: inline-block; font-size: 12px;")
         self.buttonModify = QPushButton()
         self.buttonModify.setToolTip("Select a step to edit its parameters")
         self.buttonModify.setText("Modify")
         self.buttonModify.setStyleSheet(
-                "background-color: #008CBA; border: none; color: white; padding: 6px 12px; \n"
-                "text-align: center; text-decoration: none; display: inline-block; font-size: 12px;")
+            "background-color: #008CBA; border: none; color: white; padding: 6px 12px; \n"
+            "text-align: center; text-decoration: none; display: inline-block; font-size: 12px;")
         self.buttonDelete = QPushButton()
         self.buttonDelete.setToolTip("Click to remove one or more steps from the pipeline")
         self.buttonDelete.setText("Delete")
         self.buttonDelete.setStyleSheet(
-                "background-color: #f44336; border: none; color: white; padding: 6px 12px; \n"
-                "text-align: center; text-decoration: none; display: inline-block; font-size: 12px;")
+            "background-color: #f44336; border: none; color: white; padding: 6px 12px; \n"
+            "text-align: center; text-decoration: none; display: inline-block; font-size: 12px;")
 
         layout.addWidget(self.buttonSwap)
         layout.addWidget(self.buttonModify)
@@ -71,38 +71,38 @@ class PipelineWindow(QDialog):
     def modify(self):
         j = 0
         for i in range(0, self.listwidget.topLevelItemCount()):
-            if (self.listwidget.topLevelItem(i).checkState(0) == QtCore.Qt.Checked):
+            if self.listwidget.topLevelItem(i).checkState(0) == QtCore.Qt.Checked:
                 self.index = i
                 j = j + 1
-        if(j != 1 or list(self.pipeline.pipeline[self.index].keys())[0] == "plot"): return
-        else: self.accept()
+        if j != 1 or list(self.pipeline.pipeline[self.index].keys())[0] == "plot":
+            return
+        else:
+            self.accept()
 
     def swap(self):
         x = []
         j = 0
-        for i in range(0,self.listwidget.topLevelItemCount()):
-            if(self.listwidget.topLevelItem(i).checkState(0) == QtCore.Qt.Checked):
-               #x.append(self.listwidget.topLevelItem(i).text(1))
-               x.append(self.pipeline.pipeline[i])
-               j = j+1
-        if(j != 2): return
+        for i in range(0, self.listwidget.topLevelItemCount()):
+            if self.listwidget.topLevelItem(i).checkState(0) == QtCore.Qt.Checked:
+                x.append(self.pipeline.pipeline[i])
+                j = j + 1
+        if j != 2:
+            return
         k, l = self.pipeline.swap(x)
         self.listwidget.topLevelItem(k).setText(1, str(x[1]))
         self.listwidget.topLevelItem(l).setText(1, str(x[0]))
         self.pipe = self.pipeline.return_pipeline()
 
-
     def delete(self):
         listItems = []
         for i in range(0, self.listwidget.topLevelItemCount()):
-            if (self.listwidget.topLevelItem(i).checkState(0) == QtCore.Qt.Checked):
-                listItems.append([self.listwidget.topLevelItem(i),self.pipeline.pipeline[i]])
-               # listItems.append(self.pipeline.pipeline[i])
+            if self.listwidget.topLevelItem(i).checkState(0) == QtCore.Qt.Checked:
+                listItems.append([self.listwidget.topLevelItem(i), self.pipeline.pipeline[i]])
+            # listItems.append(self.pipeline.pipeline[i])
         if not listItems: return
         for item in listItems:
             itemIndex = self.listwidget.indexOfTopLevelItem(item[0])
             self.listwidget.takeTopLevelItem(itemIndex)
             y = self.pipe.index(item[1])
             self.pipe.remove(item[1])
-            #self.pipeline.operations.pop(y)
             self.pipeline.updatePipeline(self.pipe)

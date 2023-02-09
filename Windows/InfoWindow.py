@@ -17,41 +17,36 @@ class InfoWindow(QWidget):
         self.setLayout(layout)
         self.listwidget = QListWidget()
         self.listwidget.setStyleSheet("background: transparent;\n"
-                            "font: 75 11pt \"Yu Gothic\";\n"
-                            "color: rgb(255, 255, 255);\n"
-                            "text-align: center;\n"
-                            "")
-
+                                      "font: 75 11pt \"Yu Gothic\";\n"
+                                      "color: rgb(255, 255, 255);\n"
+                                      "text-align: center;\n"
+                                      "")
 
         self.listwidget.insertItem(0, str(self.info))
-        self.listwidget.insertItem(1, "----------------------------------------------------------------------------------detailed view---------------------------------------------------------------------------------------------------------------")
+        self.listwidget.insertItem(1,
+                                   "----------------------------------------------------------------------------------detailed view---------------------------------------------------------------------------------------------------------------")
         keys = ['file_id', 'subject_info', 'device_info', 'meas_id', 'proj_id', 'experimenter',
-                'description', 'bads', 'ch_names' , 'events']
+                'description', 'bads', 'ch_names', 'events']
         i = 2
         for key in keys:
-           if(key == 'ch_names' or key=='bads'):
-               if(len(self.info.__getitem__(key)) > 9):
-                   x = "[ "
-                   j = 0
-                   for i in range(0 , len(self.info.__getitem__(key))):
-                       x += self.info.__getitem__(key)[i]+" ,  "
-                       j += 1
-                       if(j == 13):
-                           x += '\n'
-                           j = 0
-                   x = x.rstrip()
-                   x = x.rstrip(",")
-                   x += " ]"
-               else:
-                   x = str(self.info.__getitem__(key))
-               self.listwidget.insertItem(i, str(key) + " : \n " + x + "\n")
-               i += 1
-           else:
-               self.listwidget.insertItem(i, str(key)+" -> "+str(self.info.__getitem__(key))+ "\n")
-               i += 1
-
-        # Bottoni?
+            if key == 'ch_names' or key == 'bads':
+                if len(self.info.__getitem__(key)) > 9:
+                    x = "[ "
+                    j = 0
+                    for i in range(0, len(self.info.__getitem__(key))):
+                        x += self.info.__getitem__(key)[i] + " ,  "
+                        j += 1
+                        if (j == 13):
+                            x += '\n'
+                            j = 0
+                    x = x.rstrip()
+                    x = x.rstrip(",")
+                    x += " ]"
+                else:
+                    x = str(self.info.__getitem__(key))
+                self.listwidget.insertItem(i, str(key) + " : \n " + x + "\n")
+                i += 1
+            else:
+                self.listwidget.insertItem(i, str(key) + " -> " + str(self.info.__getitem__(key)) + "\n")
+                i += 1
         layout.addWidget(self.listwidget)
-
-
-

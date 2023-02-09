@@ -9,18 +9,18 @@ class Function:
         mpl.rcParams["savefig.directory"] = directory
 
     def run(self):
-        if(self.parameters["plot"] == "plot()"):
+        if self.parameters["plot"] == "plot()":
             y = self.signal.copy()
             fig: Figure = y.plot(use_opengl=True)
             win = fig.canvas.manager.window
             win.setWindowTitle("Plot of raw data")
             fig.show()
-        elif (self.parameters["plot"] == "compute_psd().plot()"):
+        elif self.parameters["plot"] == "compute_psd().plot()":
             fig: Figure = self.signal.compute_psd().plot()
             win = fig.canvas.manager.window
             win.setWindowTitle("Power spectral density")
             fig.show()
-        elif (self.parameters["plot"] == "plot_locations()"):
+        elif self.parameters["plot"] == "plot_locations()":
             fig: Figure = self.signal.plot_sensors(show_names=True)
             win = fig.canvas.manager.window
             win.setWindowTitle("Plot of sensors positions/ Montage")

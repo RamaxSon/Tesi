@@ -1,16 +1,11 @@
-"""Classe Pipeline, si occupa di gestire e mantenere la pipeline utilizzata nel preprocessing, inoltre:
-   1) Salva la pipeline utilizzata
-   2) Esegue una pipeline
-"""
 import os
 
-
 class Pipeline:
-    """Funzione per gestire le pipeline:\n
-      -Esecuzione;/n
+    """Funzione per gestire le pipeline: \n
+      -Esecuzione;\n
       -Modifica;\n
-      -Salvataggio;/n
-      Inoltre salva il segnale e il codice Python(deprecabile)
+      -Salvataggio;\n
+       Inoltre salva il segnale e il codice Python(deprecabile)
     """
 
     """Definizione parametri"""
@@ -61,7 +56,7 @@ class Pipeline:
         # SEGNALE
         if self.signal is not None:  # Funzione esterna va fatta
             from datetime import datetime
-            nomesig = self.directory + "signal" + str(datetime.today().strftime('%H%M')) + ".fif"
+            nomesig = self.directory + "signal" + str(datetime.today().strftime('%H%M')) + ".fif"  #Che devo fare?
             self.signal[-1].save(nomesig, overwrite=True)
         else:
             pass

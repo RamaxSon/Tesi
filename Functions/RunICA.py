@@ -17,14 +17,13 @@ class Function:
     """Definizione parametri della funzione"""
     def __init__(self):
         self.directory = True
-        self.parameters = {  # "noise_cov": {"type": "Covariance", "value": None, "default": None}}
-            "random_state": {"type": "int", "value": None, "default": None},
+        self.parameters = {"random_state": {"type": "int", "value": None, "default": None},
             "max_iter": {"type": "int", "value": None, "default": "auto"},
             "method": {"type": "str", "value": None, "default": "fastica", "options": ["fastica", "picard", "infomax"],
                        "others": {"type": "bool", "extends": False}}}
 
     """Definisce la directory di default sulla quale andare a salvare i plot delle componenti(oltre agli altri plot, la pipeline, il segnale...)"""
-    def directorys(self, directory):
+    def defaultDirectory(self, directory):
         mpl.rcParams["savefig.directory"] = directory
 
     """Imposta i parametri della funzione"""
@@ -39,7 +38,7 @@ class Function:
     """
     def run(self, args, signal: mne.io.read_raw, dir):
         self.new(args)
-        self.directorys(dir)
+        self.defaultDirectory(dir)
         self.parameters["n_components"] = {}
         self.parameters["n_components"]["type"] = "float"
         self.parameters["n_components"]["value"] = None
@@ -112,7 +111,7 @@ class numComp(QDialog):
             self.edit[key].setValidator(validator)
         if "desc" in self.param[key].keys():
             self.edit[key].setToolTip(self.param[key]["desc"])
-        if (self.param["method"]["value"] == "picard"):
+        if self.param["method"]["value"] == "picard":
             pass
         else:
             pass
@@ -120,12 +119,12 @@ class numComp(QDialog):
             grid.addWidget(label, left, right)
             right += 1
             self.ortho = QCheckBox()
-            if (self.param["method"]["value"] == "infomax"):
+            if self.param["method"]["value"] == "infomax":
                 self.ortho.setChecked(False)
                 grid.addWidget(self.ortho, left, right)
                 right -= 1
                 left += 1
-            elif (self.param["method"]["value"] == "fastica"):
+            elif self.param["method"]["value"] == "fastica":
                 self.ortho.setChecked(True)
                 grid.addWidget(self.ortho, left, right)
                 right -= 1
