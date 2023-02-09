@@ -180,7 +180,7 @@ class Ui_MainWindow(QMainWindow):
         path = ("Functions")
         self.dir = []
         for i in os.listdir(path):
-            if (i != "__pycache__" and i != "Plot.py" and i != "infoSignal.py"):
+            if (i != "__pycache__" and i != "Plot.py"):
                 self.dir.append(i.rstrip(".py"))
         for x in self.dir:
             self.operazioni.addItem(x.rstrip(".py"))
@@ -216,11 +216,11 @@ class Ui_MainWindow(QMainWindow):
                         f.new(window.result())
                         diz[x] = f.parameters
                         if self.rewrite:
-                            self.pipeline.x(diz, self.indexModify, self.rewrite)
+                            self.pipeline.addStep(diz, self.indexModify, self.rewrite)
                             self.rewrite = False
                             self.check = True
                         else:
-                            self.pipeline.x(diz, 0, self.rewrite)
+                            self.pipeline.addStep(diz, 0, self.rewrite)
                             self.pipeline.imports.append("import " + x)
                             self.check = True
                 else:  # Si utilizza la window di default
@@ -234,11 +234,11 @@ class Ui_MainWindow(QMainWindow):
                         f.new(X.result())
                         diz[x] = f.parameters
                         if self.rewrite:
-                            self.pipeline.x(diz, self.indexModify, self.rewrite)
+                            self.pipeline.addStep(diz, self.indexModify, self.rewrite)
                             self.rewrite = False
                             self.check = True
                         else:
-                            self.pipeline.x(diz, 0, self.rewrite)
+                            self.pipeline.addStep(diz, 0, self.rewrite)
                             self.pipeline.imports.append("import " + x)
                             self.check = True
 
@@ -347,7 +347,7 @@ class Ui_MainWindow(QMainWindow):
                         if window.exec() and window.result():  # window.result() sostituiscilo con segnale reject
                             f.new(window.result())
                             diz[x] = f.parameters
-                            self.pipeline.x(diz, 0, self.rewrite)
+                            self.pipeline.addStep(diz, 0, self.rewrite)
                             self.pipeline.imports.append("import " + x)
                             self.check = True
                     else:  # Si utilizza la window di default
@@ -355,7 +355,7 @@ class Ui_MainWindow(QMainWindow):
                         if X.exec():
                             f.new(X.result())
                             diz[x] = f.parameters
-                            self.pipeline.x(diz, 0, self.rewrite)
+                            self.pipeline.addStep(diz, 0, self.rewrite)
                             self.pipeline.imports.append("import " + x)
                             self.check = True
                     try:
@@ -379,7 +379,7 @@ class Ui_MainWindow(QMainWindow):
                         msg.setText(str(e))
                         msg.setIcon(QMessageBox.Warning)
                         messageError = msg.exec()
-                        self.pipeline.y(diz,0,False)
+                        self.pipeline.removeStep(diz, 0, False)
                         self.pipeline.imports.remove("import " + x)
 
     """Esegue il plot scelto"""

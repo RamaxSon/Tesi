@@ -1,11 +1,11 @@
-from PyQt5 import QtWidgets, QtGui, QtCore
-from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIntValidator
-from PyQt5.QtWidgets import QDialog, QVBoxLayout, QGridLayout, QLabel, QLineEdit, QDialogButtonBox, QWidget, QComboBox, \
-    QCheckBox
+from PyQt5.QtWidgets import QDialog, QVBoxLayout, QGridLayout, QLabel, QLineEdit, QDialogButtonBox, QComboBox, QCheckBox
 
 
 class FunctionWindow(QDialog):
+    """
+    Finestra di default per le funzioni
+    """
     def __init__(self, Parameters: dict, FunctionName: str):
         super().__init__()
         self.setWindowTitle(FunctionName)  # Ricordati di eliminare filter
@@ -63,27 +63,26 @@ class FunctionWindow(QDialog):
         vbox.addWidget(self.buttonbox)
         vbox.setSizeConstraint(QVBoxLayout.SetFixedSize)
 
+    """Restituzione del risultato"""
     def result(self):
         x = {}
         for key in self.param.keys():
-            if ("options" in self.param[key].keys()):
+            if "options" in self.param[key].keys():
                 x[key] = {"type": self.param[key]["type"], "value": self.edit[key].currentText()}
-                if ("others" in self.param[key].keys()):
+                if "others" in self.param[key].keys():
                     type = self.others[key]["type"]
                     if type == "bool":
                         x[key]["others"] = self.others[key]
-                        if(self.others[key]["value"].isChecked()):
+                        if self.others[key]["value"].isChecked():
                             x[key]["others"]["extends"] = True
                             x[key]["others"].pop("value")
                         else:
                             x[key]["others"]["extends"] = False
                             x[key]["others"].pop("value")
-            elif(str(self.edit[key].text()) != ""):
+            elif str(self.edit[key].text()) != "":
                x[key] ={"type" : self.param[key]["type"], "value" : self.edit[key].text()}
-               if (x[key]["type"] == "int" and x[key]["value"].isdigit()):
+               if x[key]["type"] == "int" and x[key]["value"].isdigit():
                    x[key]["value"] = int(x[key]["value"])
             else:
                 x[key] = {"type": self.param[key]["type"], "value": self.param[key]["default"]}
-               # if(x[key]["value"]):
-                #    x[key]["value"] = None
         return x

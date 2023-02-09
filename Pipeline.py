@@ -4,7 +4,16 @@
 """
 import os
 
+
 class Pipeline:
+    """Funzione per gestire le pipeline:\n
+      -Esecuzione;/n
+      -Modifica;\n
+      -Salvataggio;/n
+      Inoltre salva il segnale e il codice Python(deprecabile)
+    """
+
+    """Definizione parametri"""
     def __init__(self):
         self.pipeline = []
         self.signal = None
@@ -12,9 +21,9 @@ class Pipeline:
         self.programma = ""
         self.imports = ["import mne", "import os"]  # VEDITI COME CANCELLARE ELEMENTI RIPETUTI IN UNA LISTA!!!!!
         self.rewrite = False
-        self.directory =""
+        self.directory = ""
 
-
+    """Definizione directory di lavoro"""
     def Directory(self, nomefile):
         from datetime import datetime
         tmp = nomefile.split("/")
@@ -24,6 +33,7 @@ class Pipeline:
             for x in tmp:
                 self.directory += x + "/"
 
+    """Salvataggio pipeline"""
     def save(self, nomefile: str):
         import json
         if self.directory == "":
@@ -46,16 +56,16 @@ class Pipeline:
             json.dump(data, outfile, indent=1)
         self.saveSignal()
 
+    """Salvataggio segnale --> quale formato?"""
     def saveSignal(self):
         # SEGNALE
         if self.signal is not None:  # Funzione esterna va fatta
             from datetime import datetime
-            nomesig = self.directory + "signal" + str(datetime.today().strftime('%H%M'))+".fif"
+            nomesig = self.directory + "signal" + str(datetime.today().strftime('%H%M')) + ".fif"
             self.signal[-1].save(nomesig, overwrite=True)
         else:
             pass
 
-    # PER LA LOAD IMPONI .json COME FORMATO
     """La funzione load legge automaticamente il contenuto del file, rappresentandolo come dizionario. """
     def load(self, path: str):
         import json
@@ -64,9 +74,10 @@ class Pipeline:
             self.pipeline.append(y)
         libraries = json.load(open(path))["imports"]
         for k in libraries:
-            if k not in self.imports:  #Per evitare doppioni, ma serve?
+            if k not in self.imports:  # Per evitare doppioni, ma serve?
                 self.imports.append(k)
 
+    """Esecuzione pipeline"""
     def exe(self):
         for k in self.imports:
             self.programma += k + "\n"
@@ -105,13 +116,15 @@ class Pipeline:
     def return_pipeline(self) -> list:
         return self.pipeline
 
-    def x(self, x: dict, index: int, rewrite):  # operations : dict
+    """Aggiunge uno step + i suoi parametri alla pipeline"""
+    def addStep(self, x: dict, index: int, rewrite):
         if rewrite:
             self.pipeline[index] = x
         else:
             self.pipeline.append(x)
 
-    def y(self, x: dict, index:int, rewrite):
+    """Rimuove uno step + i suoi parametri alla pipeline"""
+    def removeStep(self, x: dict, index: int, rewrite):
         if rewrite:
             self.pipeline.pop(index)
         else:
@@ -120,9 +133,11 @@ class Pipeline:
     def updatePipeline(self, Pipeline):
         self.pipeline = Pipeline
 
-    def addSignal(self, signalStates : list):
+    """Definisce il segnale in tutti gli step temporali"""
+    def addSignal(self, signalStates: list):
         self.signal = signalStates
 
+    """Scambia due step, dal punto di vista dell'ordine cronologico con il quale sono eseguiti"""
     def swap(self, x: list):
         tmp1 = x[0]
         y = self.pipeline.index(x[0])  # Old x1

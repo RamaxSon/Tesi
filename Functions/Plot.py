@@ -2,7 +2,7 @@ from matplotlib.figure import Figure
 import matplotlib as mpl
 
 class Function:
-
+    """Funzione che controlla i plot del segnale + setta la directory di default per salvare i plot"""
     def __init__(self, signal, type, directory):
         self.signal = signal
         self.parameters = {"plot" : type}
