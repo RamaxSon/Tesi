@@ -1,19 +1,32 @@
 import mne
 from PyQt5.QtWidgets import QMessageBox
 
-
 class Function:
+    """
+    Funzione che si occupa di eseguire il filtering/filtraggio in frequenza del segnale, potendo scegliere tra: \n
+    -Filtro passa basso (Ftl); \n
+    -Filtro passa alto (Fth); \n
+    -Filtro passa banda (Ftl < Fth) \n
+    -Filtro notch.
+    """
 
+    """Definizione parametri della funzione"""
     def __init__(self):
         self.self = True
         self.parameters = {"lowpass": {"type": "int", "value": None, "default": "0"},
             "highpass": {"type": "int", "value": None, "default": "0"},
                 "notch": {"type": "int", "value": None, "default": "0"}}
 
-    def new(self, args): #filter, high, low
+    """Imposta i parametri della funzione"""
+    def new(self, args):
         for key in args.keys():
             self.parameters[key]["value"] = args[key]["value"]
 
+    """Esecuzione della funzione: \n
+       1)Controllo se vengono rispettati vincoli logici tra le frequenze di taglio; \n
+       2)Esecuzione del filtraggio scelto; \n
+       3)Ritorno del risultato (segnale) \n
+    """
     def run(self, args, signal : mne.io.read_raw):
         self.new(args)
         try:

@@ -72,7 +72,7 @@ class Ui_MainWindow(QMainWindow):
         self.loadButton.setShortcut("Ctrl+S")
         self.loadButton.clicked.connect(self.loadPipeline)
 
-        # Bottone per caricare una pipeline già esistente
+        # Bottone per vedere informazioni dettagliate sul segnale
         self.infoButton = QtWidgets.QPushButton(self.centralwidget)
         self.infoButton.setObjectName("loadButton")
         self.infoButton.setGeometry(QtCore.QRect(122, 5, 25, 30))
@@ -87,9 +87,8 @@ class Ui_MainWindow(QMainWindow):
         self.label.setGeometry(QtCore.QRect(5, 5, 510, 380))
         MainWindow.resize(589, 390)
         MainWindow.setMinimumSize(589, 390)
-        # self.Back.setGeometry(QtCore.QRect(545, 345, 30, 35))
 
-        # Bottone per plottare i sensori/la posizione dei sensori del sengale(?) del segnale.
+        # Bottone per eseguire il plot dei sensori/la posizione+stato dei sensori sullo scalpo.
         self.Plot = QtWidgets.QPushButton(self.centralwidget)
         self.Plot.setGeometry(QtCore.QRect(545, 5, 30, 35))
         self.Plot.setObjectName("Back")
@@ -100,7 +99,7 @@ class Ui_MainWindow(QMainWindow):
         self.Plot.clicked.connect(self.pipeline.plot_locations)  # plot location dei segnali
         self.Plot.clicked.connect(self.execPlot)
 
-        # Bottone per plottare la Densità Spettrale di Potenza(psd) del segnale.
+        # Bottone per vedere il plot della Densità Spettrale di Potenza(psd) del segnale, i.e., in frequenza.
         self.Plot = QtWidgets.QPushButton(self.centralwidget)
         self.Plot.setGeometry(QtCore.QRect(545, 45, 30, 35))
         self.Plot.setObjectName("Back")
@@ -111,7 +110,7 @@ class Ui_MainWindow(QMainWindow):
         self.Plot.clicked.connect(self.pipeline.plot_psd)  # plot del PSD, i.e., Densità Spettrale di Potenza
         self.Plot.clicked.connect(self.execPlot)
 
-        # Bottone per plottare i dati grezzi
+        # Bottone per vedere il plot dei dati grezzi, i.e., nel tempo.
         self.Plot = QtWidgets.QPushButton(self.centralwidget)
         self.Plot.setGeometry(QtCore.QRect(545, 85, 30, 35))
         self.Plot.setObjectName("Back")
@@ -123,10 +122,9 @@ class Ui_MainWindow(QMainWindow):
         self.Plot.clicked.connect(self.pipeline.plot_data)  # plot dei dati grezzi
         self.Plot.clicked.connect(self.execPlot)
 
-        # (RICORDA: SALVARE PIPELINE.JSON + PIPELINE.PY +SEGNALE.EDF)
         self.operazioni = QComboBox(self.centralwidget)
         view = QListView(self.operazioni)
-        self.operazioni.setGeometry(QtCore.QRect(20, 335, 225, 33))  # METTI IN LAYOUT
+        self.operazioni.setGeometry(QtCore.QRect(20, 335, 225, 33))
         self.font = QtGui.QFont()
         self.font.setPointSize(11)
         self.operazioni.setFont(self.font)
@@ -144,6 +142,7 @@ class Ui_MainWindow(QMainWindow):
                                                 ")
         self.operazioni.setView(view)
 
+        #Aggiungere step alla pipeline
         self.applica = QtWidgets.QPushButton(self.centralwidget)
         self.applica.setGeometry(QtCore.QRect(255, 335, 65, 33))
         self.applica.setObjectName("applica")
@@ -154,6 +153,7 @@ class Ui_MainWindow(QMainWindow):
         self.applica.setText("Add")
         self.applica.setToolTip("Add a step to the current pipeline")
 
+        #Eseguire la pipeline
         self.run = QtWidgets.QPushButton(self.centralwidget)
         self.run.setGeometry(QtCore.QRect(335, 335, 70, 33))
         self.run.setObjectName("run")
@@ -164,6 +164,7 @@ class Ui_MainWindow(QMainWindow):
         self.run.setToolTip("Run/Execute the current Pipeline")
         self.run.setText("Run")
 
+        #Eseguire uno step(Dopo aver eseguito la pipeline)
         self.exec = QtWidgets.QPushButton(self.centralwidget)
         self.exec.setGeometry(QtCore.QRect(420, 335, 70, 33))
         self.exec.setObjectName("execute")
@@ -175,7 +176,7 @@ class Ui_MainWindow(QMainWindow):
         self.exec.setVisible(False)
         self.exec.setText("Exec")
 
-        # Aggiunta step pipeline nel combo box
+        # Aggiunta degli step alla pipeline, i.e., le funzioni implementate
         path = ("Functions")
         self.dir = []
         for i in os.listdir(path):
@@ -192,6 +193,7 @@ class Ui_MainWindow(QMainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("NeuroClean", "NeuroClean"))
 
+    """Funzione che viene eseguita per aggiungere step alla pipeline, invocando la finestra per impostare i dati(della funzione in questione)."""
     def clicker(self):
         x = self.operazioni.currentText()
         diz = {}
@@ -203,7 +205,7 @@ class Ui_MainWindow(QMainWindow):
 
                 f = mymodule.Function()
 
-                if check:  # La funzione ha una sua personale finestra °organizza bene questo if sul rewrite
+                if check:  # La funzione ha una sua personale finestra
                     if self.rewrite:
                         for key in self.pipeline.pipeline[self.indexModify][x].keys():
                             f.parameters[key]["value"] = self.pipeline.pipeline[self.indexModify][x][key]["value"]
@@ -240,10 +242,11 @@ class Ui_MainWindow(QMainWindow):
                             self.pipeline.imports.append("import " + x)
                             self.check = True
 
-    # Caricamento nella main window del segnale
+    """Caricamento nella Main Window del segnale """
     def SetSignal(self, signal: Segnale):
         self.segnale = signal
 
+    """Modifica di uno step della pipeline"""
     def modifyPipeline(self):
         y = ('\n'.join(map(str, self.pipeline.return_pipeline())))
         print(y)
@@ -261,6 +264,7 @@ class Ui_MainWindow(QMainWindow):
             else:
                 pass
 
+    """Salvataggio pipeline"""
     def savePipeline(self):
         if self.pipeline.directory != "":
             name = QFileDialog.getSaveFileName(caption="Choose the directory where save your work",
@@ -269,6 +273,7 @@ class Ui_MainWindow(QMainWindow):
             name = QFileDialog.getSaveFileName(caption="Choose the directory where save your work")
         self.pipeline.save(name[0])
 
+    """Caricamento di una pipeline già esistente"""
     def loadPipeline(self):
         name = QFileDialog.getOpenFileName(
             caption='Select pipeline',
@@ -279,6 +284,7 @@ class Ui_MainWindow(QMainWindow):
         if name[0] != '':
             self.pipeline.load(name[0])
 
+    """Esecuzione della pipeline step by step + controllo che il primo step sia quello di apertura di un segnale"""
     def executePipeline(self):
         consistent = True
         if len(self.pipeline.pipeline) == 0 or list(self.pipeline.pipeline[0].keys())[0] != "OpenFile":
@@ -324,6 +330,7 @@ class Ui_MainWindow(QMainWindow):
             self.pipeline.saveSignal()
             self.exec.setVisible(True)
 
+    """Esecuzione di un singolo step"""
     def execStep(self):
         if self.signal:
             x = self.operazioni.currentText()
@@ -332,8 +339,7 @@ class Ui_MainWindow(QMainWindow):
                     q = "Functions." + x
                     mymodule = importlib.import_module(q)
                     f = mymodule.Function()
-                    check = self.checkWindow(
-                        x)  # Controlla la presenza o meno della finestra din default per la funzione in escuzione
+                    check = self.checkWindow(x)  # Controlla la presenza o meno della finestra din default per la funzione in escuzione
 
                     diz = {}
                     if check:  # La funzione ha una sua personale finestra °organizza bene questo if sul rewrite
@@ -352,7 +358,6 @@ class Ui_MainWindow(QMainWindow):
                             self.pipeline.x(diz, 0, self.rewrite)
                             self.pipeline.imports.append("import " + x)
                             self.check = True
-
                     try:
                         if diz.keys():
                             key = list(diz.keys())[0]
@@ -377,8 +382,7 @@ class Ui_MainWindow(QMainWindow):
                         self.pipeline.y(diz,0,False)
                         self.pipeline.imports.remove("import " + x)
 
-
-
+    """Esegue il plot scelto"""
     def execPlot(self):
         if self.signal:
             try:
@@ -395,6 +399,7 @@ class Ui_MainWindow(QMainWindow):
         else:
             pass
 
+    """Controlla se la funzione abbia o meno una finestra sua"""
     def checkWindow(self, function: str):
         test = os.path.join("Functions", function + ".py")
         with open(test) as temp_f:
@@ -404,6 +409,7 @@ class Ui_MainWindow(QMainWindow):
                 return True
         return False
 
+    """Restituisce informazioni sul segnale"""
     def infoSignal(self):
         if self.signal:
             self.x = InfoWindow(self.signal[-1].info)

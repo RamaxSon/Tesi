@@ -7,14 +7,14 @@ from PyQt5.QtWidgets import QDialog, QVBoxLayout, QGridLayout, QLabel, QLineEdit
     QTreeWidget, QTreeWidgetItem, QPushButton, QMessageBox
 import matplotlib as mpl
 
-"""
- ICA is sensitive to low-frequency drifts and therefore 
- requires the data to be high-pass filtered prior to fitting.
- Typically, a cutoff frequency of 1 Hz is recommended.
-"""
-
 class Function:
+    """
+     Funzione che si occupa di eseguire l'ICA(Independent Component Analysis) sul segnale in ingresso
+     ottenendo così le componenti indipendenti del segnale(attraverso matrici di mixing e unmixing),
+     potendo utilizzare diversi metodi e definendo più parametri per gestire al meglio le funzionalità del ICA.
+    """
 
+    """Definizione parametri della funzione"""
     def __init__(self):
         self.directory = True
         self.parameters = {  # "noise_cov": {"type": "Covariance", "value": None, "default": None}}
@@ -23,13 +23,20 @@ class Function:
             "method": {"type": "str", "value": None, "default": "fastica", "options": ["fastica", "picard", "infomax"],
                        "others": {"type": "bool", "extends": False}}}
 
+    """Definisce la directory di default sulla quale andare a salvare i plot delle componenti(oltre agli altri plot, la pipeline, il segnale...)"""
     def directorys(self, directory):
         mpl.rcParams["savefig.directory"] = directory
 
+    """Imposta i parametri della funzione"""
     def new(self, args):
         for key in args.keys():
             self.parameters[key]["value"] = args[key]["value"]
 
+    """Esecuzione della funzione: \n
+           1)Prendere in input il numero di componenti(da una finestra ausiliaria); \n
+           2)Calcolare l'ICA sul segnale attraverso il .fit(); \n
+           3)Apertura di una seconda finestra ausiliaria, nella quale studiare le componenti e decidere se sono o meno artefatti \n
+    """
     def run(self, args, signal: mne.io.read_raw, dir):
         self.new(args)
         self.directorys(dir)
@@ -68,10 +75,15 @@ class Function:
                     ica.apply(signal, exclude=Analysis.excluded)
             return signal
         else:
-            return signal #Nessuna Modifica
-
+            return signal
 
 class numComp(QDialog):
+    """
+    Finestra ausiliaria per prendere in input il numero di componenti del segnale:/n
+    -Numero intero maggiore di 1 e minore del numero di canali del segnale, oppure\n
+    -Numero razionale tra 0 e 1 per indicare la varianza( se 0.7 le componenti maggiori che assieme descrivono il 70% della varianza)\n
+    -None o 0 --> le componenti che descrivono il 99,99% della varianza.
+    """
     def __init__(self, Parameters: dict, FunctionName: str, limit: int):
         super().__init__()
         self.setWindowTitle(FunctionName)
@@ -127,6 +139,7 @@ class numComp(QDialog):
         vbox.addWidget(self.buttonbox)
         vbox.setSizeConstraint(QVBoxLayout.SetFixedSize)
 
+    """Controllo se un valore è numerico"""
     def isNumeric(self, s: str):
         try:
             float(s)
@@ -134,6 +147,7 @@ class numComp(QDialog):
         except ValueError:
             return False
 
+    """Restituisce il numero di componenti scelte"""
     def result(self):
         if self.isNumeric(self.edit["n_components"].text()):
             if float(self.edit["n_components"].text()) > 1:
@@ -147,6 +161,13 @@ class numComp(QDialog):
 
 
 class ICAAnalysis(QDialog):
+    """
+    Finestra che esegue il controllo/manipolazione delle componenti, potendo vederle:\n
+    1)Nel tempo con il plot sources;\n
+    2)Topoplot di tutte le componenti;\n
+    3)Proprietà specifiche per quelle selezionate;\n
+    4)Poter vedere cosa accade a segnale se le si imposta come artefatti, prima di averlo fatto.
+    """
 
     def __init__(self, ICA, Signal: mne.io.read_raw, FunctionName: str, components: int):
         super().__init__()
@@ -228,6 +249,7 @@ class ICAAnalysis(QDialog):
         self.buttonbox.rejected.connect(self.reject)
         layout.setSizeConstraint(QVBoxLayout.SetFixedSize)
 
+    """Funzione per vedere le proprietà delle componenti che sono impostate come checked"""
     def ICAproperties(self):
         indexes = []
         j = False
@@ -246,6 +268,8 @@ class ICAAnalysis(QDialog):
                 msg.setText(str(e))
                 msg.setIcon(QMessageBox.Warning)
                 messageError = msg.exec()
+
+    """Funzione per impostare le componenti che sono checked come artefatti"""
     def artifacts(self):
         indexes = []
         j = False
@@ -259,6 +283,7 @@ class ICAAnalysis(QDialog):
             self.excluded = indexes
             return self.accept()
 
+    """Topoplot di tutte le componenti"""
     def Plot_Components(self):
         try:
            self.ICA.plot_components()
@@ -269,6 +294,7 @@ class ICAAnalysis(QDialog):
             msg.setIcon(QMessageBox.Warning)
             messageError = msg.exec()
 
+    """Plot temporale delle componenti"""
     def Plot_Sources(self):
         try:
             self.ICA.plot_sources(self.signal)
@@ -279,6 +305,7 @@ class ICAAnalysis(QDialog):
             msg.setIcon(QMessageBox.Warning)
             messageError = msg.exec()
 
+    """Funzione per vedere l'impatto della scelta di alcune componenti(quelle checked) come artefatti"""
     def Plot_Overlay(self):
         indexes = []
         j = False
