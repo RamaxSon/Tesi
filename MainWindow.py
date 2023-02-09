@@ -219,7 +219,7 @@ class Ui_MainWindow(QMainWindow):
                             self.check = True
                         else:
                             self.pipeline.addStep(diz, 0, self.rewrite)
-                            self.pipeline.imports.append("import " + x)
+                            #self.pipeline.imports.append("import " + x)
                             self.check = True
                 else:  # Si utilizza la window di default
                     if self.rewrite:
@@ -237,7 +237,7 @@ class Ui_MainWindow(QMainWindow):
                             self.check = True
                         else:
                             self.pipeline.addStep(diz, 0, self.rewrite)
-                            self.pipeline.imports.append("import " + x)
+                            #self.pipeline.imports.append("import " + x)
                             self.check = True
 
     """Caricamento nella Main Window del segnale """
@@ -302,7 +302,7 @@ class Ui_MainWindow(QMainWindow):
                     mymodule = importlib.import_module(q)
                     if i == 0:
                         self.signal.append(mymodule.Function().run(self.pipeline.pipeline[i][key]["file"]))
-                    else:  # VEDI COSA E COME FARE CON I PLOT
+                    else:
                         if hasattr(mymodule.Function(), "directory"):
                             self.signal.append(mymodule.Function().run(self.pipeline.pipeline[i][key], self.signal[- 1],
                                                                        self.pipeline.directory))

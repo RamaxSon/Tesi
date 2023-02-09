@@ -12,9 +12,8 @@ class Pipeline:
     def __init__(self):
         self.pipeline = []
         self.signal = None
-        self.operations = []
-        self.programma = ""
-        self.imports = ["import mne", "import os"]  # VEDITI COME CANCELLARE ELEMENTI RIPETUTI IN UNA LISTA!!!!!
+        #self.programma = ""
+        #self.imports = ["import mne", "import os"]
         self.rewrite = False
         self.directory = ""
 
@@ -36,17 +35,18 @@ class Pipeline:
             os.mkdir(self.directory)
         else:
             self.Directory(nomefile)
-        print(self.directory)
-        nomeprogramma = self.directory + "codice.py"
+        #nomeprogramma = self.directory + "codice.py"
         nomefile = self.directory + self.pipesave
 
+        """
         # CODICE
         file = open(nomeprogramma, "w")
         file.write(self.exe())
         file.close()
+        """
 
         # PIPELINE
-        data = {"pipeline": self.pipeline, "imports": self.imports}
+        data = {"pipeline": self.pipeline}  #"imports": self.imports
         with open(nomefile + ".json", "w") as outfile:
             json.dump(data, outfile, indent=1)
         self.saveSignal()
@@ -67,13 +67,15 @@ class Pipeline:
         data = json.load(open(path))["pipeline"]
         for y in data:
             self.pipeline.append(y)
+        """
         libraries = json.load(open(path))["imports"]
         for k in libraries:
-            if k not in self.imports:  # Per evitare doppioni, ma serve?
+            if k not in self.imports:  
                 self.imports.append(k)
+        """
 
-    """Esecuzione pipeline"""
-    def exe(self):
+    """
+    def exe(self):  
         for k in self.imports:
             self.programma += k + "\n"
         self.programma += "\n"
@@ -93,8 +95,10 @@ class Pipeline:
                             values += "None"
                     self.programma += ("signal  =  Functions." + str(key) + ".run(" + values + ")\n")
                 else:
+                    pass
                     self.programma += ("signal." + str(x["plot"]) + "\n")
         return self.programma
+    """
 
     def plot_data(self):
         self.pipeline.append({"plot": "plot()"})
