@@ -40,16 +40,18 @@ class FunctionWindow(QDialog):
             left += 1
             if self.checkCheckable is not None:
                 self.checkCheckable = None
+                label = QLabel(list(self.others[key].keys())[1])
+                grid.addWidget(label, left, right)
+                right += 1
                 if self.others[key]["type"] == "bool":
-                    label = QLabel(list(self.others[key].keys())[1])
-
-                    grid.addWidget(label, left, right)
-                    right += 1
                     self.others[key]["value"] = QCheckBox()
                     self.others[key]["value"].setChecked(False)
-                    grid.addWidget(self.others[key]["value"], left, right)
-                    right -= 1
-                    left += 1
+                elif self.others[key]["type"] == "int":
+                    self.others[key]["value"] = QLineEdit()
+                    self.others[key]["value"].setValidator(onlyInt)
+                grid.addWidget(self.others[key]["value"], left, right)
+                right -= 1
+                left += 1
             if self.param[key]["type"] == "int":  # Per str(QregExp) e float(QDouble) aspetta
                 self.edit[key].setValidator(onlyInt)
             if "desc" in self.param[key].keys():

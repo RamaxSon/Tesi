@@ -219,7 +219,6 @@ class Ui_MainWindow(QMainWindow):
                             self.check = True
                         else:
                             self.pipeline.addStep(diz, 0, self.rewrite)
-                            #self.pipeline.imports.append("import " + x)
                             self.check = True
                 else:  # Si utilizza la window di default
                     if self.rewrite:
@@ -237,7 +236,6 @@ class Ui_MainWindow(QMainWindow):
                             self.check = True
                         else:
                             self.pipeline.addStep(diz, 0, self.rewrite)
-                            #self.pipeline.imports.append("import " + x)
                             self.check = True
 
     """Caricamento nella Main Window del segnale """
@@ -337,7 +335,6 @@ class Ui_MainWindow(QMainWindow):
                     mymodule = importlib.import_module(q)
                     f = mymodule.Function()
                     check = self.checkWindow(x)  # Controlla la presenza o meno della finestra din default per la funzione in escuzione
-
                     diz = {}
                     if check:  # La funzione ha una sua personale finestra °organizza bene questo if sul rewrite
                         window = mymodule.Window(f.parameters)
@@ -345,7 +342,6 @@ class Ui_MainWindow(QMainWindow):
                             f.new(window.result())
                             diz[x] = f.parameters
                             self.pipeline.addStep(diz, 0, self.rewrite)
-                            self.pipeline.imports.append("import " + x)
                             self.check = True
                     else:  # Si utilizza la window di default
                         X = FunctionWindow(f.parameters, x)
@@ -353,7 +349,6 @@ class Ui_MainWindow(QMainWindow):
                             f.new(X.result())
                             diz[x] = f.parameters
                             self.pipeline.addStep(diz, 0, self.rewrite)
-                            self.pipeline.imports.append("import " + x)
                             self.check = True
                     try:
                         if diz.keys():
@@ -412,3 +407,4 @@ class Ui_MainWindow(QMainWindow):
             self.x = InfoWindow(self.signal[-1].info)
             self.x.show()
             self.label.setText("Complete information about the signal are printed in the terminal")
+            print(self.signal[-1].info["chs"])

@@ -79,12 +79,10 @@ class Window(QDialog):
             self.reject()
 
     def getFileName(self):
-        file_filter = 'Data File (*.xlsx *.csv *.dat);; Excel File (*.xlsx *.xls)'
         response = QFileDialog.getOpenFileName(
             parent=self,
             caption='Select a data file',
             directory=os.getcwd(),
-            # filter='MNE File (*.fif);',
         )
         if response[0] != '':
             self.openFile(response[0])
@@ -94,10 +92,8 @@ class Window(QDialog):
     def retranslateUi(self, NeuroClean):
         _translate = QtCore.QCoreApplication.translate
         NeuroClean.setWindowTitle(_translate("NeuroClean", "NeuroClean"))
-        self.label.setText(_translate("NeuroClean", "Select an .edf or .fif file"))
 
     """Restituzione parameter leggibile per la pipeline"""
     def result(self):
-        x = {}
-        x["value"] = self.file
+        x = {"value": self.file}
         return x

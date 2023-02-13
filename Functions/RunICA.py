@@ -1,11 +1,12 @@
-import mne
+from mne import preprocessing, io
 import picard
 from PyQt5 import QtCore, QtGui
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QDoubleValidator
 from PyQt5.QtWidgets import QDialog, QVBoxLayout, QGridLayout, QLabel, QLineEdit, QDialogButtonBox, QCheckBox, \
-    QTreeWidget, QTreeWidgetItem, QPushButton, QMessageBox
+    QTreeWidget, QTreeWidgetItem, QPushButton, QMessageBox, QFileDialog
 import matplotlib as mpl
+
 
 class Function:
     """
@@ -15,18 +16,22 @@ class Function:
     """
 
     """Definizione parametri della funzione"""
+
     def __init__(self):
         self.directory = True
         self.parameters = {"random_state": {"type": "int", "value": None, "default": None},
-            "max_iter": {"type": "int", "value": None, "default": "auto"},
-            "method": {"type": "str", "value": None, "default": "fastica", "options": ["fastica", "picard", "infomax"],
-                       "others": {"type": "bool", "extends": False}}}
+                           "max_iter": {"type": "int", "value": None, "default": "auto"},
+                           "method": {"type": "str", "value": None, "default": "fastica",
+                                      "options": ["fastica", "picard", "infomax"],
+                                      "others": {"type": "bool", "extends": False}}}
 
     """Definisce la directory di default sulla quale andare a salvare i plot delle componenti(oltre agli altri plot, la pipeline, il segnale...)"""
+
     def defaultDirectory(self, directory):
         mpl.rcParams["savefig.directory"] = directory
 
     """Imposta i parametri della funzione"""
+
     def new(self, args):
         for key in args.keys():
             self.parameters[key]["value"] = args[key]["value"]
@@ -36,34 +41,42 @@ class Function:
            2)Calcolare l'ICA sul segnale attraverso il .fit(); \n
            3)Apertura di una seconda finestra ausiliaria, nella quale studiare le componenti e decidere se sono o meno artefatti \n
     """
-    def run(self, args, signal: mne.io.read_raw, dir):
+
+    def run(self, args, signal: io.read_raw, dir):
         self.new(args)
         self.defaultDirectory(dir)
         self.parameters["n_components"] = {}
         self.parameters["n_components"]["type"] = "float"
         self.parameters["n_components"]["value"] = None
         self.parameters["n_components"]["default"] = None
-        self.parameters["n_components"]["desc"] = "-Greater than 1 and less than or equal to the number of channels,\n  select number of channels -> int value;\n-Between 0 and 1, Will select the smallest number of components \n  required to explain the cumulative variance of the data greater than n_components -> float value;\n-None --> 0.999999 is the default value for this parameter."
-        numC = numComp(self.parameters, "Fit Params", signal.info["nchan"])
+        self.parameters["n_components"][
+            "desc"] = "-Greater than 1 and less than or equal to the number of channels,\n  select number of channels -> int value;\n-Between 0 and 1, Will select the smallest number of components \n  required to explain the cumulative variance of the data greater than n_components -> float value;\n-None --> 0.999999 is the default value for this parameter."
+        montage = True
+        j = type(signal.info["chs"])
+        from math import isnan
+        for k in signal.info["chs"]:
+            if isnan(k["loc"][0]):
+                montage = False
+        numC = otherParams(self.parameters, "Fit Params", signal.info["nchan"], montage)
         numC.setWindowFlags(numC.windowFlags() & ~Qt.WindowContextHelpButtonHint)
         numC.setWindowFlags(numC.windowFlags() | Qt.WindowMinimizeButtonHint)
         if numC.exec():
-            self.parameters["n_components"]["value"] = numC.result()
+            self.parameters["n_components"]["value"], self.montage = numC.result()
             fit_params = {}
             if self.parameters["method"]["value"] != "picard":
                 fit_params["extended"] = self.parameters["method"]["others"]["extends"]
             signal.filter(l_freq=1., h_freq=None)  # ICA works best with a highpass filter applied
             if len(fit_params.keys()) > 1:
-                ica = mne.preprocessing.ICA(n_components=self.parameters["n_components"]["value"],
-                                            method=self.parameters["method"]["value"],
-                                            max_iter=self.parameters["max_iter"]["value"],
-                                            random_state=self.parameters["random_state"]["value"],
-                                            fit_params=fit_params)
+                ica = preprocessing.ICA(n_components=self.parameters["n_components"]["value"],
+                                        method=self.parameters["method"]["value"],
+                                        max_iter=self.parameters["max_iter"]["value"],
+                                        random_state=self.parameters["random_state"]["value"],
+                                        fit_params=fit_params)
             else:
-                ica = mne.preprocessing.ICA(n_components=self.parameters["n_components"]["value"],
-                                            method=self.parameters["method"]["value"],
-                                            max_iter=self.parameters["max_iter"]["value"],
-                                            random_state=self.parameters["random_state"]["value"])
+                ica = preprocessing.ICA(n_components=self.parameters["n_components"]["value"],
+                                        method=self.parameters["method"]["value"],
+                                        max_iter=self.parameters["max_iter"]["value"],
+                                        random_state=self.parameters["random_state"]["value"])
             ica.fit(signal)
             componenti = ica.n_components_
             Analysis = ICAAnalysis(ica, signal, "ICA Component Analysis", componenti)
@@ -76,14 +89,16 @@ class Function:
         else:
             return signal
 
-class numComp(QDialog):
+
+class otherParams(QDialog):
     """
     Finestra ausiliaria per prendere in input il numero di componenti del segnale:/n
     -Numero intero maggiore di 1 e minore del numero di canali del segnale, oppure\n
     -Numero razionale tra 0 e 1 per indicare la varianza( se 0.7 le componenti maggiori che assieme descrivono il 70% della varianza)\n
     -None o 0 --> le componenti che descrivono il 99,99% della varianza.
     """
-    def __init__(self, Parameters: dict, FunctionName: str, limit: int):
+
+    def __init__(self, Parameters: dict, FunctionName: str, limit: int, montage: bool):
         super().__init__()
         self.setWindowTitle(FunctionName)
         self.param = Parameters
@@ -94,23 +109,23 @@ class numComp(QDialog):
         self.others = {}
         left = 0
         right = 0
-        validator = QDoubleValidator()  #Float validator
+        validator = QDoubleValidator()
         validator.setRange(0, limit)
-        key = "n_components"
-        grid.addWidget(QLabel(key), left, right)
-        self.edit[key] = QLineEdit()
-        if self.param[key]["value"] != None:
-            self.edit[key].setText(self.param[key]["value"])
+        key1 = "n_components"
+        grid.addWidget(QLabel(key1), left, right)
+        self.edit[key1] = QLineEdit()
+        if self.param[key1]["value"] is not None:
+            self.edit[key1].setText(self.param[key1]["value"])
         else:
-            self.edit[key].setText(self.param[key]["default"])
+            self.edit[key1].setText(self.param[key1]["default"])
         right += 1
-        grid.addWidget(self.edit[key], left, right)
+        grid.addWidget(self.edit[key1], left, right)
         right -= 1
         left += 1
-        if self.param[key]["type"] == "int":  # Per str(QregExp) e float(QDouble) aspetta
-            self.edit[key].setValidator(validator)
-        if "desc" in self.param[key].keys():
-            self.edit[key].setToolTip(self.param[key]["desc"])
+        if self.param[key1]["type"] == "int":  # Per str(QregExp) e float(QDouble) aspetta
+            self.edit[key1].setValidator(validator)
+        if "desc" in self.param[key1].keys():
+            self.edit[key1].setToolTip(self.param[key1]["desc"])
         if self.param["method"]["value"] == "picard":
             pass
         else:
@@ -129,6 +144,15 @@ class numComp(QDialog):
                 grid.addWidget(self.ortho, left, right)
                 right -= 1
                 left += 1
+        if not montage:
+            templateLabel = QLabel("Template")
+            grid.addWidget(templateLabel, left, right)
+            right += 1
+            self.template = QPushButton()
+            self.template.clicked.connect(self.inputTemplate)
+            grid.addWidget(self.template, left, right)
+            right -= 1
+            left += 1
 
         vbox.addLayout(grid)
         self.buttonbox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
@@ -138,7 +162,18 @@ class numComp(QDialog):
         vbox.addWidget(self.buttonbox)
         vbox.setSizeConstraint(QVBoxLayout.SetFixedSize)
 
+    def inputTemplate(self):
+        import os
+        response = QFileDialog.getOpenFileName(
+            parent=self,
+            caption='Select a template for montage',
+            directory=os.getcwd(),
+        )
+        if response[0] != '':
+            self.template.setText(response[0])
+
     """Controllo se un valore è numerico"""
+
     def isNumeric(self, s: str):
         try:
             float(s)
@@ -147,12 +182,13 @@ class numComp(QDialog):
             return False
 
     """Restituisce il numero di componenti scelte"""
+
     def result(self):
         if self.isNumeric(self.edit["n_components"].text()):
             if float(self.edit["n_components"].text()) > 1:
-                return int(self.edit["n_components"].text())
+                return int(self.edit["n_components"].text()), self.template
             elif float(self.edit["n_components"].text()) > 0:
-                return float(self.edit["n_components"].text())
+                return float(self.edit["n_components"].text()), self.template
             else:
                 return None
         else:
@@ -168,7 +204,7 @@ class ICAAnalysis(QDialog):
     4)Poter vedere cosa accade a segnale se le si imposta come artefatti, prima di averlo fatto.
     """
 
-    def __init__(self, ICA, Signal: mne.io.read_raw, FunctionName: str, components: int):
+    def __init__(self, ICA, Signal: io.read_raw, FunctionName: str, components: int):
         super().__init__()
         self.excluded = None
         self.setWindowTitle(FunctionName)
@@ -189,9 +225,9 @@ class ICAAnalysis(QDialog):
         self.listwidget.setHeaderLabels(['Item', 'Properties', 'Artifact'])
         for i in range(0, components):
             item = QTreeWidgetItem(self.listwidget)
-            if i<10:
-                item.setText(0, "ICA00"+str(i))
-            elif i<100:
+            if i < 10:
+                item.setText(0, "ICA00" + str(i))
+            elif i < 100:
                 item.setText(0, "ICA0" + str(i))
             else:
                 item.setText(0, "ICA" + str(i))
@@ -249,6 +285,7 @@ class ICAAnalysis(QDialog):
         layout.setSizeConstraint(QVBoxLayout.SetFixedSize)
 
     """Funzione per vedere le proprietà delle componenti che sono impostate come checked"""
+
     def ICAproperties(self):
         indexes = []
         j = False
@@ -260,7 +297,7 @@ class ICAAnalysis(QDialog):
             return
         else:
             try:
-               self.ICA.plot_properties(self.signal, picks=indexes, log_scale=True)
+                self.ICA.plot_properties(self.signal, picks=indexes, log_scale=True)
             except RuntimeError as e:
                 msg = QMessageBox()
                 msg.setWindowTitle("Operation denied")
@@ -269,6 +306,7 @@ class ICAAnalysis(QDialog):
                 messageError = msg.exec()
 
     """Funzione per impostare le componenti che sono checked come artefatti"""
+
     def artifacts(self):
         indexes = []
         j = False
@@ -283,9 +321,10 @@ class ICAAnalysis(QDialog):
             return self.accept()
 
     """Topoplot di tutte le componenti"""
+
     def Plot_Components(self):
         try:
-           self.ICA.plot_components()
+            self.ICA.plot_components()
         except RuntimeError as e:
             msg = QMessageBox()
             msg.setWindowTitle("Operation denied")
@@ -294,6 +333,7 @@ class ICAAnalysis(QDialog):
             messageError = msg.exec()
 
     """Plot temporale delle componenti"""
+
     def Plot_Sources(self):
         try:
             self.ICA.plot_sources(self.signal)
@@ -305,6 +345,7 @@ class ICAAnalysis(QDialog):
             messageError = msg.exec()
 
     """Funzione per vedere l'impatto della scelta di alcune componenti(quelle checked) come artefatti"""
+
     def Plot_Overlay(self):
         indexes = []
         j = False
@@ -312,7 +353,8 @@ class ICAAnalysis(QDialog):
             if self.listwidget.topLevelItem(i).checkState(2) == QtCore.Qt.Checked:
                 indexes.append(i)
                 j = True
-        if not j: return
+        if not j:
+            return
         else:
             try:
                 self.ICA.plot_overlay(self.signal, exclude=indexes)
