@@ -1,7 +1,9 @@
 import os
 import mne
+import numpy
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import QWidget, QPushButton, QFileDialog, QMessageBox, QHBoxLayout, QDialog
+from PyQt5.QtWidgets import QWidget, QPushButton, QFileDialog, QMessageBox, QHBoxLayout, QDialog, QVBoxLayout, \
+    QDialogButtonBox, QGridLayout, QLabel
 import resource
 
 
@@ -15,15 +17,71 @@ class Function:
     def new(self, result: dict):
         self.parameters["file"]["value"] = result["value"]
 
+    def openMontageOwn(self, File: str, raw):
+        import pandas as pd
+        df = pd.read_csv(File)
+        Electrodes = df['Electrode'].to_list()
+        x = df['x'].to_list()
+        y = df['y'].to_list()
+        z = df['z'].to_list()
+        ch_pos = {}
+        for i in range(0, raw.info["nchan"]):
+            for el in Electrodes:
+                el = str(el)
+                if "(" in el:
+                    elsempio = el.replace(" ","")
+                    arr = elsempio.split("(")
+                    el1 = arr[0]
+                    el2 = arr[1].rstrip(")")
+                    if raw.info["chs"][i]["ch_name"].rstrip(".").rstrip(".") == el1:
+                        index = Electrodes.index(el)
+                        k = raw.info["chs"][i]["ch_name"]
+                        ch_pos[k] = [x[index], y[index], z[index]]
+                    elif raw.info["chs"][i]["ch_name"].rstrip(".").rstrip(".") == el2:
+                        index = Electrodes.index(el)
+                        k = raw.info["chs"][i]["ch_name"]
+                        ch_pos[k] = [x[index], y[index], z[index]]
+                else:
+                    if raw.info["chs"][i]["ch_name"].rstrip(".").rstrip(".") == el:
+                        index = Electrodes.index(el)
+                        k = raw.info["chs"][i]["ch_name"]
+                        ch_pos[k] = [x[index], y[index], z[index]]
+        if "Nz" not in ch_pos.keys():
+            index = Electrodes.index("Nz")
+            ch_pos['Nz'] = [x[index], y[index], z[index]]
+        data = mne.utils.Bunch(
+            nasion=ch_pos['Nz'],
+            lpa=ch_pos['T9..'],
+            rpa=ch_pos['T10.'],
+            ch_pos=ch_pos,
+            coord_frame='unknown',
+            hsp=None, hpi=None,
+        )
+        x = mne.channels.make_dig_montage(**data)
+        raw.set_montage(x)
+        return raw
+
     def run(self, result):
         self.new(result)
         raw = mne.io.read_raw(self.parameters["file"]["value"], preload=True)
         raw.crop(0, 60).load_data()
+        from math import isnan
+        montage = True
+        for k in raw.info["chs"]:
+            if isnan(k["loc"][0]):
+                montage = False
+        if not montage:  # Fai a caricamento signal per 3D e 2D
+            path = ("Montages")
+            for x in os.listdir(path):
+                if x != "__pycache__":
+                    if int(raw.info["nchan"]) == int(x.rstrip("chs.csv")):
+                        raw = self.openMontageOwn(path+"/"+x, raw)
         return raw
 
 
 class Window(QDialog):
     """Finestra per gestire l'input del segnale + controllo che il file scelto sia adatto"""
+
     def __init__(self, nothing):
         super().__init__()
         self.file = None
@@ -64,12 +122,12 @@ class Window(QDialog):
         self.setLayout(layout)
 
     """Funzione che preleva il file + controllo che sia il formato adatto"""
+
     def openFile(self, stringa: str):
         try:
-            # Caricamento del segnale in memoria
-            # self.Signal = Segnale(stringa)
-            raw = mne.io.read_raw(stringa, preload=True)
-            raw.crop(0, 1).load_data()
+            from math import isnan
+            self.raw = mne.io.read_raw(stringa, preload=True)
+            self.raw.crop(0, 1).load_data()
             self.file = stringa
             self.accept()
         except ValueError as e:
@@ -94,6 +152,48 @@ class Window(QDialog):
         NeuroClean.setWindowTitle(_translate("NeuroClean", "NeuroClean"))
 
     """Restituzione parameter leggibile per la pipeline"""
+
     def result(self):
         x = {"value": self.file}
         return x
+
+    class otherParams(QDialog):
+        """Finestra ausiliaria per prendere in input il template del montaggio degli elettrodi"""
+
+        def __init__(self, Parameters: dict, FunctionName: str, limit: int):
+            super().__init__()
+            self.setWindowTitle(FunctionName)
+            self.param = Parameters
+            self.checkCheckable = None
+            vbox = QVBoxLayout(self)
+            grid = QGridLayout()
+            self.edit = {}
+            self.others = {}
+            left = 0
+            right = 0
+            templateLabel = QLabel("Template")
+            grid.addWidget(templateLabel, left, right)
+            right += 1
+            self.template = QPushButton()
+            self.template.clicked.connect(self.inputTemplate)
+            grid.addWidget(self.template, left, right)
+            right -= 1
+            left += 1
+
+            vbox.addLayout(grid)
+            self.buttonbox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+            vbox.addWidget(self.buttonbox)
+            self.buttonbox.accepted.connect(self.accept)
+            self.buttonbox.rejected.connect(self.reject)
+            vbox.addWidget(self.buttonbox)
+            vbox.setSizeConstraint(QVBoxLayout.SetFixedSize)
+
+        def inputTemplate(self):
+            import os
+            response = QFileDialog.getOpenFileName(
+                parent=self,
+                caption='Select a template for montage',
+                directory=os.getcwd(),
+            )
+            if response[0] != '':
+                self.template.setText(response[0])

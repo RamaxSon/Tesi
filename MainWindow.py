@@ -372,7 +372,6 @@ class Ui_MainWindow(QMainWindow):
                         msg.setIcon(QMessageBox.Warning)
                         messageError = msg.exec()
                         self.pipeline.removeStep(diz, 0, False)
-                        self.pipeline.imports.remove("import " + x)
 
     """Esegue il plot scelto"""
     def execPlot(self):
@@ -407,4 +406,4 @@ class Ui_MainWindow(QMainWindow):
             self.x = InfoWindow(self.signal[-1].info)
             self.x.show()
             self.label.setText("Complete information about the signal are printed in the terminal")
-            print(self.signal[-1].info["chs"])
+            print(self.signal[-1].get_montage())

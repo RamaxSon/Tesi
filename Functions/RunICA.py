@@ -51,17 +51,11 @@ class Function:
         self.parameters["n_components"]["default"] = None
         self.parameters["n_components"][
             "desc"] = "-Greater than 1 and less than or equal to the number of channels,\n  select number of channels -> int value;\n-Between 0 and 1, Will select the smallest number of components \n  required to explain the cumulative variance of the data greater than n_components -> float value;\n-None --> 0.999999 is the default value for this parameter."
-        montage = True
-        j = type(signal.info["chs"])
-        from math import isnan
-        for k in signal.info["chs"]:
-            if isnan(k["loc"][0]):
-                montage = False
-        numC = otherParams(self.parameters, "Fit Params", signal.info["nchan"], montage)
+        numC = otherParams(self.parameters, "Fit Params", signal.info["nchan"])
         numC.setWindowFlags(numC.windowFlags() & ~Qt.WindowContextHelpButtonHint)
         numC.setWindowFlags(numC.windowFlags() | Qt.WindowMinimizeButtonHint)
         if numC.exec():
-            self.parameters["n_components"]["value"], self.montage = numC.result()
+            self.parameters["n_components"]["value"] = numC.result() #, self.montage
             fit_params = {}
             if self.parameters["method"]["value"] != "picard":
                 fit_params["extended"] = self.parameters["method"]["others"]["extends"]
@@ -98,7 +92,7 @@ class otherParams(QDialog):
     -None o 0 --> le componenti che descrivono il 99,99% della varianza.
     """
 
-    def __init__(self, Parameters: dict, FunctionName: str, limit: int, montage: bool):
+    def __init__(self, Parameters: dict, FunctionName: str, limit: int):
         super().__init__()
         self.setWindowTitle(FunctionName)
         self.param = Parameters
@@ -144,16 +138,6 @@ class otherParams(QDialog):
                 grid.addWidget(self.ortho, left, right)
                 right -= 1
                 left += 1
-        if not montage:
-            templateLabel = QLabel("Template")
-            grid.addWidget(templateLabel, left, right)
-            right += 1
-            self.template = QPushButton()
-            self.template.clicked.connect(self.inputTemplate)
-            grid.addWidget(self.template, left, right)
-            right -= 1
-            left += 1
-
         vbox.addLayout(grid)
         self.buttonbox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         vbox.addWidget(self.buttonbox)
@@ -173,7 +157,6 @@ class otherParams(QDialog):
             self.template.setText(response[0])
 
     """Controllo se un valore è numerico"""
-
     def isNumeric(self, s: str):
         try:
             float(s)
@@ -186,9 +169,9 @@ class otherParams(QDialog):
     def result(self):
         if self.isNumeric(self.edit["n_components"].text()):
             if float(self.edit["n_components"].text()) > 1:
-                return int(self.edit["n_components"].text()), self.template
+                return int(self.edit["n_components"].text())#, self.template
             elif float(self.edit["n_components"].text()) > 0:
-                return float(self.edit["n_components"].text()), self.template
+                return float(self.edit["n_components"].text())#, self.template
             else:
                 return None
         else:
