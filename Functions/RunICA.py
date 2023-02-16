@@ -188,7 +188,7 @@ class ICAAnalysis(QDialog):
     4)Poter vedere cosa accade a segnale se le si imposta come artefatti, prima di averlo fatto.
     """
 
-    def __init__(self, ICA, Signal: io.read_raw, FunctionName: str, components: int):
+    def __init__(self, ICA : preprocessing.ica, Signal: io.read_raw, FunctionName: str, components: int):
         super().__init__()
         self.excluded = None
         self.setWindowTitle(FunctionName)
@@ -248,6 +248,16 @@ class ICAAnalysis(QDialog):
         self.PlotSources.clicked.connect(self.Plot_Sources)
         layout.addWidget(self.PlotSources)
 
+        self.EOGCorrisp = QPushButton()
+        self.EOGCorrisp.setToolTip("Find corrispondence in components with EOG")
+        self.EOGCorrisp.setText("Find EOG Corrispondence")
+        self.EOGCorrisp.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
+        self.EOGCorrisp.setStyleSheet(
+            "background-color: white; border-color: #f6f6f6; color: black; padding: 6px 12px; \n"
+            "text-align: center; text-decoration: none; display: inline-block; font-size: 12px;")
+        self.EOGCorrisp.clicked.connect(self.findEOGcorrispondence)
+        layout.addWidget(self.EOGCorrisp)
+
         self.PlotOverlay = QPushButton()
         self.PlotOverlay.setToolTip("Plot the overlay of the signal before and after the cleaning of the possibles "
                                     "artifacts")
@@ -271,6 +281,9 @@ class ICAAnalysis(QDialog):
     """Funzione per vedere le proprietà delle componenti che sono impostate come checked"""
 
     def ICAproperties(self):
+        import matplotlib.pyplot as plt
+        import numpy as np
+        from mne import viz, time_frequency
         indexes = []
         j = False
         for i in range(0, self.listwidget.topLevelItemCount()):
@@ -290,6 +303,22 @@ class ICAAnalysis(QDialog):
                 messageError = msg.exec()
 
     """Funzione per impostare le componenti che sono checked come artefatti"""
+
+    def findEOGcorrispondence(self):
+        try:
+            eog_indices, eog_scores = self.ICA.find_bads_eog(self.signal)
+            for i in range(0, self.listwidget.topLevelItemCount()):
+                if i in eog_indices:
+                    item = self.listwidget.topLevelItem(i)
+                    item.setCheckState(2, QtCore.Qt.Checked)
+            self.ICA.plot_scores(eog_scores)
+        except RuntimeError as e:
+            msg = QMessageBox()
+            msg.setWindowTitle("Operation denied")
+            msg.setText(str(e)+" through the mne function")
+            msg.setIcon(QMessageBox.Warning)
+            messageError = msg.exec()
+
 
     def artifacts(self):
         indexes = []
