@@ -36,21 +36,19 @@ class Function:
                     if raw.info["chs"][i]["ch_name"].rstrip(".").rstrip(".") == el1:
                         index = Electrodes.index(el)
                         k = raw.info["chs"][i]["ch_name"]
-                        ch_pos[k] = [x[index], y[index], z[index]]
+                        ch_pos[k] = [x[index]/1000, y[index]/1000, z[index]/1000]
                     elif raw.info["chs"][i]["ch_name"].rstrip(".").rstrip(".") == el2:
                         index = Electrodes.index(el)
                         k = raw.info["chs"][i]["ch_name"]
-                        ch_pos[k] = [x[index], y[index], z[index]]
+                        ch_pos[k] = [x[index]/1000, y[index]/1000, z[index]/1000]
                 else:
                     if raw.info["chs"][i]["ch_name"].rstrip(".").rstrip(".") == el:
                         index = Electrodes.index(el)
                         k = raw.info["chs"][i]["ch_name"]
-                        ch_pos[k] = [x[index], y[index], z[index]]
-        if "Nz" not in ch_pos.keys():
-            index = Electrodes.index("Nz")
-            ch_pos['Nz'] = [x[index], y[index], z[index]]
+                        ch_pos[k] = [x[index]/1000, y[index]/1000, z[index]/1000]
+        index = Electrodes.index("Nz")
         data = mne.utils.Bunch(
-            nasion=ch_pos['Nz'],
+            nasion=[x[index]/1000, y[index]/1000, z[index]/1000],
             lpa=ch_pos['T9..'],
             rpa=ch_pos['T10.'],
             ch_pos=ch_pos,
@@ -59,6 +57,7 @@ class Function:
         )
         x = mne.channels.make_dig_montage(**data)
         raw.set_montage(x)
+        print(x)
         return raw
 
     def run(self, result):

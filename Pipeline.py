@@ -12,8 +12,6 @@ class Pipeline:
     def __init__(self):
         self.pipeline = []
         self.signal = None
-        #self.programma = ""
-        #self.imports = ["import mne", "import os"]
         self.rewrite = False
         self.directory = ""
 

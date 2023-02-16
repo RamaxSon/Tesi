@@ -304,7 +304,6 @@ class ICAAnalysis(QDialog):
             return self.accept()
 
     """Topoplot di tutte le componenti"""
-
     def Plot_Components(self):
         try:
             self.ICA.plot_components()
