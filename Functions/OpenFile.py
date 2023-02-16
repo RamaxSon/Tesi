@@ -11,6 +11,7 @@ class Function:
     """Funzione per prendere in input un segnale"""
 
     def __init__(self):
+        self.needSignal = False
         self.parameters = {"file": {"type": "str", "value": None}}
         self.self = True
 

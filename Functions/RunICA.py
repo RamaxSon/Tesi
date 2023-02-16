@@ -18,6 +18,7 @@ class Function:
     """Definizione parametri della funzione"""
 
     def __init__(self):
+        self.needSignal = False
         self.directory = True
         self.parameters = {"random_state": {"type": "int", "value": None, "default": None},
                            "max_iter": {"type": "int", "value": None, "default": "auto"},

@@ -207,10 +207,19 @@ class Ui_MainWindow(QMainWindow):
                     if self.rewrite:
                         for key in self.pipeline.pipeline[self.indexModify][x].keys():
                             f.parameters[key]["value"] = self.pipeline.pipeline[self.indexModify][x][key]["value"]
-                    window = mymodule.Window(f.parameters)
-                    window.setWindowFlags(window.windowFlags() & ~Qt.WindowContextHelpButtonHint)
-                    window.setWindowFlags(window.windowFlags() | Qt.WindowMinimizeButtonHint)
-                    if window.exec() and window.result():  # window.result() sostituiscilo con segnale reject
+                    k = True
+                    if f.needSignal:
+                        if self.signal != []:
+                            window = mymodule.Window(f.parameters, self.signal[-1])
+                            window.setWindowFlags(window.windowFlags() & ~Qt.WindowContextHelpButtonHint)
+                            window.setWindowFlags(window.windowFlags() | Qt.WindowMinimizeButtonHint)
+                        else:
+                            k = False
+                    else:
+                            window = mymodule.Window(f.parameters)
+                            window.setWindowFlags(window.windowFlags() & ~Qt.WindowContextHelpButtonHint)
+                            window.setWindowFlags(window.windowFlags() | Qt.WindowMinimizeButtonHint)
+                    if k and window.exec() and window.result():  # window.result() sostituiscilo con segnale reject
                         f.new(window.result())
                         diz[x] = f.parameters
                         if self.rewrite:
@@ -337,8 +346,19 @@ class Ui_MainWindow(QMainWindow):
                     check = self.checkWindow(x)  # Controlla la presenza o meno della finestra din default per la funzione in escuzione
                     diz = {}
                     if check:  # La funzione ha una sua personale finestra °organizza bene questo if sul rewrite
-                        window = mymodule.Window(f.parameters)
-                        if window.exec() and window.result():  # window.result() sostituiscilo con segnale reject
+                        k = True
+                        if f.needSignal:
+                            if self.signal != []:
+                                window = mymodule.Window(f.parameters, self.signal[-1])
+                                window.setWindowFlags(window.windowFlags() & ~Qt.WindowContextHelpButtonHint)
+                                window.setWindowFlags(window.windowFlags() | Qt.WindowMinimizeButtonHint)
+                            else:
+                                k = False
+                        else:
+                            window = mymodule.Window(f.parameters)
+                            window.setWindowFlags(window.windowFlags() & ~Qt.WindowContextHelpButtonHint)
+                            window.setWindowFlags(window.windowFlags() | Qt.WindowMinimizeButtonHint)
+                        if k and window.exec() and window.result():  # window.result() sostituiscilo con segnale reject
                             f.new(window.result())
                             diz[x] = f.parameters
                             self.pipeline.addStep(diz, 0, self.rewrite)
