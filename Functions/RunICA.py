@@ -373,3 +373,4 @@ class ICAAnalysis(QDialog):
                 msg.setText(str(e))
                 msg.setIcon(QMessageBox.Warning)
                 messageError = msg.exec()
+

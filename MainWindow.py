@@ -215,6 +215,13 @@ class Ui_MainWindow(QMainWindow):
                             window.setWindowFlags(window.windowFlags() | Qt.WindowMinimizeButtonHint)
                         else:
                             k = False
+                            msg = QMessageBox()
+                            msg.setWindowTitle("Operation denied")
+                            msg.setText(
+                                "The function " + x + " cannot be executed yet because it needs a loaded signal")
+                            msg.setIcon(QMessageBox.Information)
+                            messageInfo = msg.exec()
+                            break
                     else:
                             window = mymodule.Window(f.parameters)
                             window.setWindowFlags(window.windowFlags() & ~Qt.WindowContextHelpButtonHint)
@@ -343,12 +350,12 @@ class Ui_MainWindow(QMainWindow):
                     q = "Functions." + x
                     mymodule = importlib.import_module(q)
                     f = mymodule.Function()
-                    check = self.checkWindow(x)  # Controlla la presenza o meno della finestra din default per la funzione in escuzione
+                    check = self.checkWindow(x)  # Controlla la presenza o meno della finestra di default per la funzione in esecuzione
                     diz = {}
-                    if check:  # La funzione ha una sua personale finestra °organizza bene questo if sul rewrite
+                    if check:  # La funzione ha una sua personale finestra
                         k = True
                         if f.needSignal:
-                            if self.signal != []:
+                            if self.signal:
                                 window = mymodule.Window(f.parameters, self.signal[-1])
                                 window.setWindowFlags(window.windowFlags() & ~Qt.WindowContextHelpButtonHint)
                                 window.setWindowFlags(window.windowFlags() | Qt.WindowMinimizeButtonHint)

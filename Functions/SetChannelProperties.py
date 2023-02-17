@@ -38,7 +38,7 @@ class Function:
     def run(self, args, signal: io.read_raw):
         self.new(args)
         try:
-            if(self.parameters["bads"]["value"] != []):
+            if self.parameters["bads"]["value"] != []:
                signal.info["bads"] = self.parameters["bads"]["value"]
             return signal
         except ValueError as e:
