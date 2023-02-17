@@ -281,9 +281,6 @@ class ICAAnalysis(QDialog):
     """Funzione per vedere le proprietà delle componenti che sono impostate come checked"""
 
     def ICAproperties(self):
-        import matplotlib.pyplot as plt
-        import numpy as np
-        from mne import viz, time_frequency
         indexes = []
         j = False
         for i in range(0, self.listwidget.topLevelItemCount()):
