@@ -24,7 +24,7 @@ class Function:
             win.setWindowTitle("Power spectral density")
             fig.show()
         elif self.parameters["plot"] == "plot_locations()":
-            fig: Figure = self.signal.plot_sensors(show_names=True)  #, sphere='auto'
+            fig: Figure = self.signal.plot_sensors(show_names=True, sphere='auto')  #, sphere='auto'
             win = fig.canvas.manager.window
             win.setWindowTitle("Plot of sensors positions/ Montage")
             fig.show()

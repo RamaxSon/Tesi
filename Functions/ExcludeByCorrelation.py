@@ -40,11 +40,17 @@ class Function:
             correlations[self.signal.info["ch_names"][i]] = []
             for j in range(0, len(self.signal.info["ch_names"])):
                 if i != j and self.euclideanDistance(self.signal.info["chs"][i]["loc"][:3], self.signal.info["chs"][j]["loc"][:3]) <= float(self.parameters["distance"]["value"]):
-                    corr_coef = abs(pearsonr(self.signal.get_data(self.signal.info["ch_names"][i]), self.signal.get_data(self.signal.info["ch_names"][j])))
-                    correlations[i].append(corr_coef)
-            means[self.signal.info["ch_names"][i]] = mean(correlations[i])
+                    corr_coef = pearsonr(self.signal.get_data(self.signal.info["ch_names"][i])[0], self.signal.get_data(self.signal.info["ch_names"][j])[0])
+                    correlations[self.signal.info["ch_names"][i]].append(abs(corr_coef[0]))
+            try:
+                means[self.signal.info["ch_names"][i]] = mean(correlations[self.signal.info["ch_names"][i]])
+            except ValueError as e:
+                print("Error in the channel : "+self.signal.info["ch_names"][i])
+                print(e)
+                print("Maybe the distance is too small, check it and remember it is in centimeters")
+                print("---------------------")
         for index in means.keys():
-            if means[index] <= self.parameters["soglia"]["value"]:
+            if means[index] <= float(self.parameters["soglia"]["value"]):
                 excluded.append(index)
         self.parameters["excluded"] = {}
         self.parameters["excluded"]["value"] = excluded
