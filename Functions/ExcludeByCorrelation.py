@@ -1,14 +1,10 @@
 import mne
-from mne_connectivity import envelope_correlation
-import numpy as np
-from PyQt5 import QtCore, QtGui
-from PyQt5.QtWidgets import QMessageBox, QDialog, QGridLayout, QTreeWidget, QTreeWidgetItem, QPushButton, \
-    QDialogButtonBox
+from PyQt5.QtWidgets import QMessageBox
 
 
 class Function:
     """
-    Funzione che .
+    Funzione che va ad impostare come bad i canali con una bassa correlazione rispetto ai loro vicini.
     """
 
     """Definizione parametri della funzione"""
@@ -17,7 +13,7 @@ class Function:
         self.needSignal = True
         self.parameters = {"soglia": {"type": "float", "value": 0.3, "default": 0.3},
                            "distance": {"type": "float", "value": 0.05, "default": 0.6,
-                                        "desc": "Esprimere la distanza in cm nella quale calcolare la correlazione con i vicini"}}
+                                        "desc": "Esprimere la distanza in metri nella quale calcolare la correlazione con i vicini(Considerare che servono i cm)"}}
 
     """Imposta i parametri della funzione"""
 
@@ -25,11 +21,13 @@ class Function:
         for key in args.keys():
             self.parameters[key]["value"] = args[key]["value"]
 
+    """Calcolo distanza euclidea tra due punti nello spazio {x,y,z}"""
     def euclideanDistance(self, vett1, vett2):
         from math import sqrt
         d = sqrt((float(vett2[0]) - float(vett1[0]))**2 + (float(vett2[1]) - float(vett1[1]))**2 + (float(vett2[1]) - float(vett1[2]))**2)
         return d
 
+    """Calcolo della correlazione tra gli elettrodi rispetto ai loro vicini"""
     def Correlation(self):
         from scipy.stats import pearsonr
         from statistics import mean
@@ -55,6 +53,7 @@ class Function:
         self.parameters["excluded"] = {}
         self.parameters["excluded"]["value"] = excluded
 
+    """Canali con poca correlazione impostati come bad"""
     def run(self, args, signal: mne.io.read_raw):
         self.new(args)
         self.signal = signal
