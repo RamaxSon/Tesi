@@ -1,4 +1,4 @@
-from PyQt5.QtGui import QIntValidator
+from PyQt5.QtGui import QIntValidator, QDoubleValidator
 from PyQt5.QtWidgets import QDialog, QVBoxLayout, QGridLayout, QLabel, QLineEdit, QDialogButtonBox, QComboBox, QCheckBox
 
 
@@ -19,6 +19,7 @@ class FunctionWindow(QDialog):
         left = 0
         right = 0
         onlyInt = QIntValidator()
+        onlyFloat = QDoubleValidator()
         onlyInt.setRange(0, 400)
         for key in self.param.keys():
             grid.addWidget(QLabel(key), left, right)
@@ -52,8 +53,10 @@ class FunctionWindow(QDialog):
                 grid.addWidget(self.others[key]["value"], left, right)
                 right -= 1
                 left += 1
-            if self.param[key]["type"] == "int":  # Per str(QregExp) e float(QDouble) aspetta
+            if self.param[key]["type"] == "int":
                 self.edit[key].setValidator(onlyInt)
+            elif self.param[key]["type"] == "float":
+                self.edit[key].setValidator(onlyFloat)
             if "desc" in self.param[key].keys():
                 self.edit[key].setToolTip(self.param[key]["desc"])
 

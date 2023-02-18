@@ -12,18 +12,48 @@ class Function:
     """
 
     """Definizione parametri della funzione"""
+
     def __init__(self):
         self.needSignal = True
-        self.parameters = {"excluded": {"type": "list", "value": None, "default": []}}
+        self.parameters = {"soglia": {"type": "float", "value": 0.3, "default": 0.3},
+                           "distance": {"type": "float", "value": 0.05, "default": 0.6,
+                                        "desc": "Esprimere la distanza in cm nella quale calcolare la correlazione con i vicini"}}
 
     """Imposta i parametri della funzione"""
-    def new(self, args):
-        self.parameters["excluded"]["value"] = args["excluded"]["value"]
 
-    """Gli step vedi dopo"""
-    def run(self, args, signal : mne.io.read_raw):
+    def new(self, args):
+        for key in args.keys():
+            self.parameters[key]["value"] = args[key]["value"]
+
+    def euclideanDistance(self, vett1, vett2):
+        from math import sqrt
+        d = sqrt((float(vett2[0]) - float(vett1[0]))**2 + (float(vett2[1]) - float(vett1[1]))**2 + (float(vett2[1]) - float(vett1[2]))**2)
+        return d
+
+    def Correlation(self):
+        from scipy.stats import pearsonr
+        from statistics import mean
+        correlations = {}
+        means = {}
+        excluded = []
+        for i in range(0, len(self.signal.info["ch_names"])):
+            correlations[self.signal.info["ch_names"][i]] = []
+            for j in range(0, len(self.signal.info["ch_names"])):
+                if i != j and self.euclideanDistance(self.signal.info["chs"][i]["loc"][:3], self.signal.info["chs"][j]["loc"][:3]) <= float(self.parameters["distance"]["value"]):
+                    corr_coef = abs(pearsonr(self.signal.get_data(self.signal.info["ch_names"][i]), self.signal.get_data(self.signal.info["ch_names"][j])))
+                    correlations[i].append(corr_coef)
+            means[self.signal.info["ch_names"][i]] = mean(correlations[i])
+        for index in means.keys():
+            if means[index] <= self.parameters["soglia"]["value"]:
+                excluded.append(index)
+        self.parameters["excluded"] = {}
+        self.parameters["excluded"]["value"] = excluded
+
+    def run(self, args, signal: mne.io.read_raw):
         self.new(args)
+        self.signal = signal
         try:
+            self.Correlation()
             if self.parameters["excluded"]["value"] != []:
                 signal.info["bads"] = self.parameters["excluded"]["value"]
             return signal
@@ -35,7 +65,8 @@ class Function:
             messageError = msg.exec()
             return signal
 
-class Window(QDialog):
+
+class Windos(QDialog):
     def __init__(self, parameters, signal):
         super().__init__()
         self.setObjectName("ExcludeByCorrelation")
@@ -86,11 +117,10 @@ class Window(QDialog):
         corr = envelope_correlation(epochs)
         corr = corr.get_data(output='dense')[:, :, 0]
         threshold = 0.5
-        excluded_channels = np.where(corr < threshold, 'excluded', 'included')
-        print(excluded_channels)
-        #set self.qualcosa[excluded_channels]
-
-
+        excluded_channels = np.where(corr < threshold, 1, 0)
+        print(corr[excluded_channels])
+        # set self.qualcosa[excluded_channels]
+        print(self.signal.info["chs"][excluded_channels]["ch_name"])
 
     def result(self):
         pass

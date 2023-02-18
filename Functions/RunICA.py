@@ -1,3 +1,4 @@
+import numpy as np
 from mne import preprocessing, io
 import picard
 from PyQt5 import QtCore, QtGui
@@ -56,7 +57,7 @@ class Function:
         numC.setWindowFlags(numC.windowFlags() & ~Qt.WindowContextHelpButtonHint)
         numC.setWindowFlags(numC.windowFlags() | Qt.WindowMinimizeButtonHint)
         if numC.exec():
-            self.parameters["n_components"]["value"] = numC.result() #, self.montage
+            self.parameters["n_components"]["value"] = numC.result()  # , self.montage
             fit_params = {}
             if self.parameters["method"]["value"] != "picard":
                 fit_params["extended"] = self.parameters["method"]["others"]["extends"]
@@ -158,6 +159,7 @@ class otherParams(QDialog):
             self.template.setText(response[0])
 
     """Controllo se un valore è numerico"""
+
     def isNumeric(self, s: str):
         try:
             float(s)
@@ -170,9 +172,9 @@ class otherParams(QDialog):
     def result(self):
         if self.isNumeric(self.edit["n_components"].text()):
             if float(self.edit["n_components"].text()) > 1:
-                return int(self.edit["n_components"].text())#, self.template
+                return int(self.edit["n_components"].text())  # , self.template
             elif float(self.edit["n_components"].text()) > 0:
-                return float(self.edit["n_components"].text())#, self.template
+                return float(self.edit["n_components"].text())  # , self.template
             else:
                 return None
         else:
@@ -188,7 +190,7 @@ class ICAAnalysis(QDialog):
     4)Poter vedere cosa accade a segnale se le si imposta come artefatti, prima di averlo fatto.
     """
 
-    def __init__(self, ICA : preprocessing.ica, Signal: io.read_raw, FunctionName: str, components: int):
+    def __init__(self, ICA: preprocessing.ica, Signal: io.read_raw, FunctionName: str, components: int):
         super().__init__()
         self.excluded = None
         self.setWindowTitle(FunctionName)
@@ -291,7 +293,21 @@ class ICAAnalysis(QDialog):
             return
         else:
             try:
-                self.ICA.plot_properties(self.signal, picks=indexes, log_scale=True)
+                # self.ICA.plot_properties(self.signal, picks=indexes, log_scale=True)
+                import matplotlib.pyplot as plt
+                from mne import viz
+                for index in indexes:
+                    ica_component = self.ICA.get_components()[:, index]
+                    fig, axs = plt.subplots(1,2)
+                    viz.plot_topomap(ica_component, self.signal.info, axes=axs[0])
+                    axs[0].set_title(" ")
+                   # samples = np.linspace(0, (self.signal.info["sfreq"]*60))
+                    cop = self.signal.copy()
+                    prova = self.ICA.apply(cop)
+                   # axs[1].plot(samples, prova[index, :])
+                    axs[0].set_title(" ")
+                    plt.show()
+
             except RuntimeError as e:
                 msg = QMessageBox()
                 msg.setWindowTitle("Operation denied")
@@ -312,10 +328,9 @@ class ICAAnalysis(QDialog):
         except RuntimeError as e:
             msg = QMessageBox()
             msg.setWindowTitle("Operation denied")
-            msg.setText(str(e)+" through the mne function")
+            msg.setText(str(e) + " through the mne function")
             msg.setIcon(QMessageBox.Warning)
             messageError = msg.exec()
-
 
     def artifacts(self):
         indexes = []
@@ -331,6 +346,7 @@ class ICAAnalysis(QDialog):
             return self.accept()
 
     """Topoplot di tutte le componenti"""
+
     def Plot_Components(self):
         try:
             self.ICA.plot_components()
@@ -373,4 +389,3 @@ class ICAAnalysis(QDialog):
                 msg.setText(str(e))
                 msg.setIcon(QMessageBox.Warning)
                 messageError = msg.exec()
-

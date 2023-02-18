@@ -209,8 +209,8 @@ class Ui_MainWindow(QMainWindow):
                             f.parameters[key]["value"] = self.pipeline.pipeline[self.indexModify][x][key]["value"]
                     k = True
                     if f.needSignal:
-                        if self.signal != []:
-                            window = mymodule.Window(f.parameters, self.signal[-1])
+                        if self.signal:
+                            window = mymodule.Window(f.parameters)
                             window.setWindowFlags(window.windowFlags() & ~Qt.WindowContextHelpButtonHint)
                             window.setWindowFlags(window.windowFlags() | Qt.WindowMinimizeButtonHint)
                         else:
@@ -433,4 +433,4 @@ class Ui_MainWindow(QMainWindow):
             self.x = InfoWindow(self.signal[-1].info)
             self.x.show()
             self.label.setText("Complete information about the signal are printed in the terminal")
-            print(self.signal[-1].get_montage())
+            print(self.signal[-1].info["ch_names"])
