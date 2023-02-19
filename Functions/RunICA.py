@@ -293,7 +293,8 @@ class ICAAnalysis(QDialog):
             return
         else:
             try:
-                # self.ICA.plot_properties(self.signal, picks=indexes, log_scale=True)
+                self.ICA.plot_properties(self.signal, picks=indexes, log_scale=True)
+                """
                 import matplotlib.pyplot as plt
                 from mne import viz
                 for index in indexes:
@@ -307,7 +308,7 @@ class ICAAnalysis(QDialog):
                    # axs[1].plot(samples, prova[index, :])
                     axs[0].set_title(" ")
                     plt.show()
-
+                """
             except RuntimeError as e:
                 msg = QMessageBox()
                 msg.setWindowTitle("Operation denied")

@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QDialog, QVBoxLayout, QDialogButtonBox, QPushButton, QLabel, QGridLayout, \
-    QFileDialog
+    QFileDialog, QMessageBox
 from matplotlib import pyplot as plt
 from matplotlib.figure import Figure
 import matplotlib as mpl
@@ -12,47 +12,40 @@ class Function:
         mpl.rcParams["savefig.directory"] = directory
 
     def run(self):
-        if self.parameters["plot"] == "plot()":
-            y = self.signal.copy()
-            fig: Figure = y.plot(use_opengl=True)
-            win = fig.canvas.manager.window
-            win.setWindowTitle("Plot of raw data")
-            fig.show()
-        elif self.parameters["plot"] == "compute_psd().plot()":
-            fig: Figure = self.signal.compute_psd().plot()
-            win = fig.canvas.manager.window
-            win.setWindowTitle("Power spectral density")
-            fig.show()
-        elif self.parameters["plot"] == "plot_locations()":
-            fig: Figure = self.signal.plot_sensors(show_names=True, sphere='auto')  #, sphere='auto'
-            win = fig.canvas.manager.window
-            win.setWindowTitle("Plot of sensors positions/ Montage")
-            fig.show()
-        elif self.parameters["plot"] == "plot_events()":
-            """
-            events, event_id = events_from_annotations(self.signal)
-            annotations = Annotations.from_events(events, self.signal.info['sfreq'], event_id)
-            self.signal.set_annotations(annotations)
-            fig: Figure = viz.plot_events(events, sfreq=self.signal.info['sfreq'])
-            win = fig.canvas.manager.window
-            win.setWindowTitle("Plot of events")
-            fig.show()
-            """
-            from mne import events_from_annotations, Annotations
-            try:
+        try:
+            if self.parameters["plot"] == "plot()":
+                y = self.signal.copy()
+                fig: Figure = y.plot(use_opengl=True)
+                win = fig.canvas.manager.window
+                win.setWindowTitle("Plot of raw data")
+                fig.show()
+            elif self.parameters["plot"] == "compute_psd().plot()":
+                fig: Figure = self.signal.compute_psd().plot()
+                win = fig.canvas.manager.window
+                win.setWindowTitle("Power spectral density")
+                fig.show()
+            elif self.parameters["plot"] == "plot_locations()":
+                fig: Figure = self.signal.plot_sensors(show_names=True, sphere='auto')  # , sphere='auto'
+                win = fig.canvas.manager.window
+                win.setWindowTitle("Plot of sensors positions/ Montage")
+                fig.show()
+            elif self.parameters["plot"] == "plot_events()":
+                """
                 events, event_id = events_from_annotations(self.signal)
-                #annotations = Annotations.from_events(events, self.signal.info['sfreq'], event_id)
-                #self.signal.set_annotations(annotations)
-
-                # plotta il segnale con gli eventi
-                fig = self.signal.plot(events=events, event_id=event_id, duration=10.0, start=0.0)
-
-                # aggiungi una legenda che mostra gli ID/alias degli eventi
-                fig.subplots_adjust(right=0.8)  # lascia spazio per la legenda
-                fig.legend(loc='center right', bbox_to_anchor=(1.15, 0.5), ncol=2, frameon=False, columnspacing=1)
-
-            except ValueError as e:
+                annotations = Annotations.from_events(events, self.signal.info['sfreq'], event_id)
+                self.signal.set_annotations(annotations)
+                fig: Figure = viz.plot_events(events, sfreq=self.signal.info['sfreq'])
+                win = fig.canvas.manager.window
+                win.setWindowTitle("Plot of events")
+                fig.show()
+                """
                 pass
+        except ValueError as e:
+            msg = QMessageBox()
+            msg.setWindowTitle("Operation denied")
+            msg.setText(str(e))
+            msg.setIcon(QMessageBox.Warning)
+            messageError = msg.exec()
 
 class WindowEvents(QDialog):
     def __init__(self):

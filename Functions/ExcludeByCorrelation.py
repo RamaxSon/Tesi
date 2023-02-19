@@ -8,15 +8,13 @@ class Function:
     """
 
     """Definizione parametri della funzione"""
-
     def __init__(self):
         self.needSignal = True
-        self.parameters = {"soglia": {"type": "float", "value": 0.3, "default": 0.3},
-                           "distance": {"type": "float", "value": 0.05, "default": 0.6,
+        self.parameters = {"soglia": {"type": "float", "value": None, "default": "0.5"},
+                           "distance": {"type": "float", "value": None, "default": "0.3",
                                         "desc": "Esprimere la distanza in metri nella quale calcolare la correlazione con i vicini(Considerare che servono i cm)"}}
 
     """Imposta i parametri della funzione"""
-
     def new(self, args):
         for key in args.keys():
             self.parameters[key]["value"] = args[key]["value"]
@@ -39,7 +37,7 @@ class Function:
             for j in range(0, len(self.signal.info["ch_names"])):
                 if i != j and self.euclideanDistance(self.signal.info["chs"][i]["loc"][:3], self.signal.info["chs"][j]["loc"][:3]) <= float(self.parameters["distance"]["value"]):
                     corr_coef = pearsonr(self.signal.get_data(self.signal.info["ch_names"][i])[0], self.signal.get_data(self.signal.info["ch_names"][j])[0])
-                    correlations[self.signal.info["ch_names"][i]].append(abs(corr_coef[0]))
+                    correlations[self.signal.info["ch_names"][i]].append(corr_coef[0])
             try:
                 means[self.signal.info["ch_names"][i]] = mean(correlations[self.signal.info["ch_names"][i]])
             except ValueError as e:
@@ -59,7 +57,7 @@ class Function:
         self.signal = signal
         try:
             self.Correlation()
-            if self.parameters["excluded"]["value"] != []:
+            if self.parameters["excluded"]["value"]:
                 signal.info["bads"] = self.parameters["excluded"]["value"]
             return signal
         except ValueError as e:
