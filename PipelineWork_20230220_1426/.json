@@ -1,0 +1,12 @@
+{
+ "pipeline": [
+  {
+   "OpenFile": {
+    "file": {
+     "type": "str",
+     "value": "C:/Users/zanza/OneDrive/Desktop/S001R03.edf"
+    }
+   }
+  }
+ ]
+}

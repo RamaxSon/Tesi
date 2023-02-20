@@ -293,20 +293,21 @@ class ICAAnalysis(QDialog):
             return
         else:
             try:
-                self.ICA.plot_properties(self.signal, picks=indexes, log_scale=True)
+                self.ICA.plot_properties(self.signal, picks=indexes, log_scale=False)
                 """
                 import matplotlib.pyplot as plt
                 from mne import viz
                 for index in indexes:
                     ica_component = self.ICA.get_components()[:, index]
-                    fig, axs = plt.subplots(1,2)
-                    viz.plot_topomap(ica_component, self.signal.info, axes=axs[0])
-                    axs[0].set_title(" ")
-                   # samples = np.linspace(0, (self.signal.info["sfreq"]*60))
-                    cop = self.signal.copy()
-                    prova = self.ICA.apply(cop)
-                   # axs[1].plot(samples, prova[index, :])
-                    axs[0].set_title(" ")
+                    fig, axs = plt.subplots(2,1)
+                    #axs[0].plot(viz.plot_topomap(ica_component, self.signal.info))
+                    #axs[0].set_title("Topomap componente ")
+                    samples = int(60*self.signal.info["sfreq"]+1)
+                    n_samp = np.linspace(0, 60, num=samples)
+                    tempComp = self.ICA.get_sources(self.signal)[index]
+                    #axs[0].plot(n_samp, tempComp[0][0], linewidth=2, color='black')
+                    axs[0].plot(n_samp, tempComp[0][0], linewidth=2, color='black')
+                    axs[0].set_title("Andamento temporale della componente ")
                     plt.show()
                 """
             except RuntimeError as e:
