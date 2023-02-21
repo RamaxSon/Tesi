@@ -293,35 +293,38 @@ class ICAAnalysis(QDialog):
             return
         else:
             try:
-                self.ICA.plot_properties(self.signal, picks=indexes, log_scale=False)
-                """
+                #self.ICA.plot_properties(self.signal, picks=indexes, log_scale=False)
+
                 import matplotlib.pyplot as plt
                 from math import trunc
                 from mne import viz
                 from mne.time_frequency import psd_array_welch
                 for index in indexes:
-                    
                     ica_component = self.ICA.get_components()[:, index]
-                    fig, axs = plt.subplots(3,1)
+                    fig = plt.figure()
+                    gs = fig.add_gridspec(2, 2)
+                    ax1 = fig.add_subplot(gs[0, :])
+                    ax2 = fig.add_subplot(gs[1, 0])
+                    ax3 = fig.add_subplot(gs[1, 1])
                     tempComp = self.ICA.get_sources(self.signal)[index]
                     duration = trunc(len(self.signal)/int(self.signal.info["sfreq"]))
                     n_samp = np.linspace(0, duration, num=len(tempComp[0][0]))
-                    viz.plot_topomap(ica_component, self.signal.info, axes=axs[0])
-                    axs[1].plot(n_samp, tempComp[0][0], linewidth=1, color='black')
-                    axs[1].set_title("Andamento temporale della componente ICA"+str(index))
-                    axs[1].set_xlabel("Time(s)")
-                    axs[1].grid(True)
+                    viz.plot_topomap(ica_component, self.signal.info, axes=ax3, show=False)
+                    ax1.set_title("Topomap")
+                    ax1.plot(n_samp, tempComp[0][0], linewidth=1, color='black')
+                    ax1.set_title("Andamento temporale della componente ICA"+str(index))
+                    ax1.set_xlabel("Time(s)")
+                    ax1.grid(True)
                     ica_data = ica_component[np.newaxis, :]
                     sfreq = self.signal.info['sfreq']
-                    frequencies, power = psd_array_welch(ica_data, sfreq, fmin=0, fmax=sfreq / 2, n_fft=64)
-                    axs[2].plot(frequencies[0], power)
-                    axs[2].set_title("Spettro della componente ICA"+str(index))
-                    axs[2].set_xlabel("Frequencies(Hz)")
-                    axs[2].set_ylabel("Power Spectral Density")
-                    axs[2].grid(True)
+                    power, frequencies = psd_array_welch(ica_data, sfreq, fmin=0, fmax=sfreq / 2, n_fft=(self.signal.info["nchan"]-len(self.signal.info["bads"])))
+                    ax2.plot(frequencies, power[0], linewidth=1)
+                    ax2.set_title("Spettro della componente ICA"+str(index))
+                    ax2.set_xlabel("Frequencies(Hz)")
+                    ax2.set_ylabel("Power Spectral Density")
+                    ax2.grid(True)
                     fig.tight_layout()
                     plt.show()
-                    """
             except RuntimeError as e:
                 msg = QMessageBox()
                 msg.setWindowTitle("Operation denied")
