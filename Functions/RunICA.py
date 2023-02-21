@@ -296,20 +296,32 @@ class ICAAnalysis(QDialog):
                 self.ICA.plot_properties(self.signal, picks=indexes, log_scale=False)
                 """
                 import matplotlib.pyplot as plt
+                from math import trunc
                 from mne import viz
+                from mne.time_frequency import psd_array_welch
                 for index in indexes:
+                    
                     ica_component = self.ICA.get_components()[:, index]
-                    fig, axs = plt.subplots(2,1)
-                    #axs[0].plot(viz.plot_topomap(ica_component, self.signal.info))
-                    #axs[0].set_title("Topomap componente ")
-                    samples = int(60*self.signal.info["sfreq"]+1)
-                    n_samp = np.linspace(0, 60, num=samples)
+                    fig, axs = plt.subplots(3,1)
                     tempComp = self.ICA.get_sources(self.signal)[index]
-                    #axs[0].plot(n_samp, tempComp[0][0], linewidth=2, color='black')
-                    axs[0].plot(n_samp, tempComp[0][0], linewidth=2, color='black')
-                    axs[0].set_title("Andamento temporale della componente ")
+                    duration = trunc(len(self.signal)/int(self.signal.info["sfreq"]))
+                    n_samp = np.linspace(0, duration, num=len(tempComp[0][0]))
+                    viz.plot_topomap(ica_component, self.signal.info, axes=axs[0])
+                    axs[1].plot(n_samp, tempComp[0][0], linewidth=1, color='black')
+                    axs[1].set_title("Andamento temporale della componente ICA"+str(index))
+                    axs[1].set_xlabel("Time(s)")
+                    axs[1].grid(True)
+                    ica_data = ica_component[np.newaxis, :]
+                    sfreq = self.signal.info['sfreq']
+                    frequencies, power = psd_array_welch(ica_data, sfreq, fmin=0, fmax=sfreq / 2, n_fft=64)
+                    axs[2].plot(frequencies[0], power)
+                    axs[2].set_title("Spettro della componente ICA"+str(index))
+                    axs[2].set_xlabel("Frequencies(Hz)")
+                    axs[2].set_ylabel("Power Spectral Density")
+                    axs[2].grid(True)
+                    fig.tight_layout()
                     plt.show()
-                """
+                    """
             except RuntimeError as e:
                 msg = QMessageBox()
                 msg.setWindowTitle("Operation denied")
@@ -318,7 +330,6 @@ class ICAAnalysis(QDialog):
                 messageError = msg.exec()
 
     """Funzione per impostare le componenti che sono checked come artefatti"""
-
     def findEOGcorrispondence(self):
         try:
             eog_indices, eog_scores = self.ICA.find_bads_eog(self.signal)

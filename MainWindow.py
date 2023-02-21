@@ -430,7 +430,11 @@ class Ui_MainWindow(QMainWindow):
     """Restituisce informazioni sul segnale"""
     def infoSignal(self):
         if self.signal:
+            from math import trunc
             self.x = InfoWindow(self.signal[-1].info)
             self.x.show()
             self.label.setText("Complete information about the signal are printed in the terminal")
-            print(self.signal[-1].info["ch_names"])
+            print(len(self.signal[-1]))
+            k = len(self.signal[-1])/int(self.signal[-1].info["sfreq"])
+            print(trunc(k))
+            print(type(trunc(k)))
