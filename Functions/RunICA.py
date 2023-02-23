@@ -310,7 +310,7 @@ class ICAAnalysis(QDialog):
                     duration = trunc(len(self.signal)/int(self.signal.info["sfreq"]))
                     n_samp = np.linspace(0, duration, num=len(tempComp[0][0]))
                     viz.plot_topomap(ica_component, self.signal.info, axes=ax3, show=False)
-                    ax1.set_title("Topomap")
+                    ax3.set_title("Topomap")
                     ax1.plot(n_samp, tempComp[0][0], linewidth=1, color='black')
                     ax1.set_title("Andamento temporale della componente ICA"+str(index))
                     ax1.set_xlabel("Time(s)")

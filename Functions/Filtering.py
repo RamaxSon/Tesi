@@ -12,7 +12,7 @@ class Function:
 
     """Definizione parametri della funzione"""
     def __init__(self):
-        self.self = True
+        self.needSignal = False
         self.parameters = {"lowpass": {"type": "int", "value": None, "default": "0"},
             "highpass": {"type": "int", "value": None, "default": "0"},
                 "notch": {"type": "int", "value": None, "default": "0"}}
