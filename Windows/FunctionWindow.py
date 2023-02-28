@@ -1,10 +1,11 @@
 from PyQt5.QtGui import QIntValidator, QDoubleValidator
 from PyQt5.QtWidgets import QDialog, QVBoxLayout, QGridLayout, QLabel, QLineEdit, QDialogButtonBox, QComboBox, QCheckBox
 
-
 class FunctionWindow(QDialog):
     """
-    Finestra di default per le funzioni
+    Finestra di default per le funzioni, prende in input:
+    -Parameters: i parametri della funzione che permettono di avere una finestra di dialogo propria
+    -FunctionName: nome della funzione, usato solo per dare il titolo alla finestra
     """
 
     def __init__(self, Parameters: dict, FunctionName: str):
@@ -29,9 +30,9 @@ class FunctionWindow(QDialog):
                 self.edit[key].addItems(self.param[key]["options"])
                 self.edit[key].setCurrentIndex(0)
                 if "others" in self.param[key].keys():
-                    self.checkCheckable = 12
+                    self.checkCheckable = True
                     self.others[key] = self.param[key]["others"]
-            elif self.param[key]["value"] != None:
+            elif self.param[key]["value"] is not None:
                 self.edit[key].setText(str(self.param[key]["value"]))
             else:
                 self.edit[key].setText(self.param[key]["default"])

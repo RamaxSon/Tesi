@@ -13,7 +13,7 @@ import importlib
 class Ui_MainWindow(QMainWindow):
 
     def __init__(self):
-        self.pipeline = Pipeline()
+        self.pipeline = Pipeline()  # Definizione Pipeline come oggetto della classe omonima
         self.signal = []
         self.check = False
         self.rewrite = False
@@ -21,7 +21,7 @@ class Ui_MainWindow(QMainWindow):
     def setupUi(self, MainWindow):
 
         MainWindow.setObjectName("NeuroClean")
-        MainWindow.setStyleSheet("background-color:#8C8C8C;")  # 7E7E7E variante del colore
+        MainWindow.setStyleSheet("background-color:#8C8C8C;")
         MainWindow.setWindowFlags(MainWindow.windowFlags() & ~Qt.WindowMaximizeButtonHint)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setAutoFillBackground(True)
@@ -94,7 +94,7 @@ class Ui_MainWindow(QMainWindow):
         self.Plot.setStyleSheet("border-image:url(:Icons/blur.png);\n"
                                 "background: white; border-radius:5%;\n"
                                 "")
-        self.Plot.clicked.connect(self.pipeline.plot_locations)  # plot location dei segnali
+        self.Plot.clicked.connect(self.pipeline.plot_locations)  # plot montaggio degli elettrodi
         self.Plot.clicked.connect(self.execPlot)
 
         # Bottone per vedere il plot della Densità Spettrale di Potenza(psd) del segnale, i.e., in frequenza.
@@ -191,7 +191,8 @@ class Ui_MainWindow(QMainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("NeuroClean", "NeuroClean"))
 
-    """Funzione che viene eseguita per aggiungere step alla pipeline, invocando la finestra per impostare i dati(della funzione in questione)."""
+    """Funzione che viene eseguita per aggiungere step alla pipeline, invocando la finestra per impostare i dati(
+       della funzione in questione). """
     def clicker(self):
         x = self.operazioni.currentText()
         diz = {}
@@ -269,10 +270,6 @@ class Ui_MainWindow(QMainWindow):
                         else:
                             self.pipeline.addStep(diz, 0, self.rewrite)
                             self.check = True
-
-    """Caricamento nella Main Window del segnale """
-    def SetSignal(self, signal):
-        self.segnale = signal
 
     """Modifica di uno step della pipeline"""
     def modifyPipeline(self):
@@ -450,7 +447,3 @@ class Ui_MainWindow(QMainWindow):
             self.x = InfoWindow(self.signal[-1].info)
             self.x.show()
             self.label.setText("Complete information about the signal are printed in the terminal")
-            print(len(self.signal[-1]))
-            k = len(self.signal[-1])/int(self.signal[-1].info["sfreq"])
-            print(trunc(k))
-            print(type(trunc(k)))
