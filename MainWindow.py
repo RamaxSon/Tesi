@@ -240,10 +240,26 @@ class Ui_MainWindow(QMainWindow):
                     if self.rewrite:
                         for key in self.pipeline.pipeline[self.indexModify][x].keys():
                             f.parameters[key]["value"] = self.pipeline.pipeline[self.indexModify][x][key]["value"]
-                    X = FunctionWindow(f.parameters, x)
-                    X.setWindowFlags(X.windowFlags() & ~Qt.WindowContextHelpButtonHint)
-                    X.setWindowFlags(X.windowFlags() | Qt.WindowMinimizeButtonHint)
-                    if X.exec():
+                    k = True
+                    if f.needSignal:
+                        if self.signal:
+                            X = FunctionWindow(f.parameters, x)
+                            X.setWindowFlags(X.windowFlags() & ~Qt.WindowContextHelpButtonHint)
+                            X.setWindowFlags(X.windowFlags() | Qt.WindowMinimizeButtonHint)
+                        else:
+                            k = False
+                            msg = QMessageBox()
+                            msg.setWindowTitle("Operation denied")
+                            msg.setText(
+                                "The function " + x + " cannot be executed yet because it needs a loaded signal")
+                            msg.setIcon(QMessageBox.Information)
+                            messageInfo = msg.exec()
+                            break
+                    else:
+                        X = FunctionWindow(f.parameters, x)
+                        X.setWindowFlags(X.windowFlags() & ~Qt.WindowContextHelpButtonHint)
+                        X.setWindowFlags(X.windowFlags() | Qt.WindowMinimizeButtonHint)
+                    if k and X.exec():
                         f.new(X.result())
                         diz[x] = f.parameters
                         if self.rewrite:
