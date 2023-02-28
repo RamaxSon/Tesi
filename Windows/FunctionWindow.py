@@ -3,11 +3,10 @@ from PyQt5.QtWidgets import QDialog, QVBoxLayout, QGridLayout, QLabel, QLineEdit
 
 class FunctionWindow(QDialog):
     """
-    Finestra di default per le funzioni, prende in input:
-    -Parameters: i parametri della funzione che permettono di avere una finestra di dialogo propria
+    Finestra di default per le funzioni, prende in input: \n
+    -Parameters: i parametri della funzione che permettono di avere una finestra di dialogo propria \n
     -FunctionName: nome della funzione, usato solo per dare il titolo alla finestra
     """
-
     def __init__(self, Parameters: dict, FunctionName: str):
         super().__init__()
         self.setWindowTitle(FunctionName)  # Ricordati di eliminare filter

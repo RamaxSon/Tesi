@@ -1,6 +1,6 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QComboBox, QListView, QMessageBox, QFileDialog
-from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QMainWindow
 import os
 from Pipeline import Pipeline
