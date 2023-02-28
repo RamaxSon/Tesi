@@ -41,7 +41,7 @@ class FunctionWindow(QDialog):
             left += 1
             if self.checkCheckable is not None:
                 self.checkCheckable = None
-                label = QLabel(list(self.others[key].keys())[1])
+                label = QLabel(self.others[key]["name"])
                 grid.addWidget(label, left, right)
                 right += 1
                 if self.others[key]["type"] == "bool":
@@ -80,10 +80,10 @@ class FunctionWindow(QDialog):
                     if type == "bool":
                         x[key]["others"] = self.others[key]
                         if self.others[key]["value"].isChecked():
-                            x[key]["others"]["extends"] = True
+                            x[key]["others"]["value"] = True
                             x[key]["others"].pop("value")
                         else:
-                            x[key]["others"]["extends"] = False
+                            x[key]["others"]["value"] = False
                             x[key]["others"].pop("value")
             elif str(self.edit[key].text()) != "":
                 x[key] = {"type": self.param[key]["type"], "value": self.edit[key].text()}

@@ -25,7 +25,7 @@ class Function:
                            "max_iter": {"type": "int", "value": None, "default": "auto"},
                            "method": {"type": "str", "value": None, "default": "fastica",
                                       "options": ["fastica", "picard", "infomax"],
-                                      "others": {"type": "bool", "extends": False}}}
+                                      "others": {"type": "bool", "name": "extends", "value" : False}}}
 
     """Definisce la directory di default sulla quale andare a salvare i plot delle componenti(oltre agli altri plot, la pipeline, il segnale...)"""
 
