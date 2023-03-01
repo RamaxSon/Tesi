@@ -148,18 +148,7 @@ class otherParams(QDialog):
         vbox.addWidget(self.buttonbox)
         vbox.setSizeConstraint(QVBoxLayout.SetFixedSize)
 
-    def inputTemplate(self):
-        import os
-        response = QFileDialog.getOpenFileName(
-            parent=self,
-            caption='Select a template for montage',
-            directory=os.getcwd(),
-        )
-        if response[0] != '':
-            self.template.setText(response[0])
-
     """Controllo se un valore è numerico"""
-
     def isNumeric(self, s: str):
         try:
             float(s)
@@ -168,7 +157,6 @@ class otherParams(QDialog):
             return False
 
     """Restituisce il numero di componenti scelte"""
-
     def result(self):
         if self.isNumeric(self.edit["n_components"].text()):
             if float(self.edit["n_components"].text()) > 1:
@@ -281,7 +269,6 @@ class ICAAnalysis(QDialog):
         layout.setSizeConstraint(QVBoxLayout.SetFixedSize)
 
     """Funzione per vedere le proprietà delle componenti che sono impostate come checked"""
-
     def ICAproperties(self):
         indexes = []
         j = False
@@ -293,8 +280,6 @@ class ICAAnalysis(QDialog):
             return
         else:
             try:
-                #self.ICA.plot_properties(self.signal, picks=indexes, log_scale=False)
-
                 import matplotlib.pyplot as plt
                 from math import trunc
                 from mne import viz
@@ -348,6 +333,7 @@ class ICAAnalysis(QDialog):
             msg.setIcon(QMessageBox.Warning)
             messageError = msg.exec()
 
+    """Funzione che si occupa della rimozione degli artefatti"""
     def artifacts(self):
         indexes = []
         j = False
@@ -362,7 +348,6 @@ class ICAAnalysis(QDialog):
             return self.accept()
 
     """Topoplot di tutte le componenti"""
-
     def Plot_Components(self):
         try:
             self.ICA.plot_components()
