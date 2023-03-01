@@ -106,7 +106,7 @@ class otherParams(QDialog):
         left = 0
         right = 0
         validator = QDoubleValidator()
-        validator.setRange(0, limit)
+        validator.setRange(0, float(limit))
         key1 = "n_components"
         grid.addWidget(QLabel(key1), left, right)
         self.edit[key1] = QLineEdit()
@@ -118,7 +118,7 @@ class otherParams(QDialog):
         grid.addWidget(self.edit[key1], left, right)
         right -= 1
         left += 1
-        if self.param[key1]["type"] == "int":  # Per str(QregExp) e float(QDouble) aspetta
+        if self.param[key1]["type"] == "float":
             self.edit[key1].setValidator(validator)
         if "desc" in self.param[key1].keys():
             self.edit[key1].setToolTip(self.param[key1]["desc"])

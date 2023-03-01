@@ -1,6 +1,5 @@
 import os
 import mne
-import numpy
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QWidget, QPushButton, QFileDialog, QMessageBox, QHBoxLayout, QDialog, QVBoxLayout, \
     QDialogButtonBox, QGridLayout, QLabel

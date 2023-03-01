@@ -42,10 +42,24 @@ class Function:
                                      h_freq=self.parameters["highpass"]["value"])
             elif self.parameters["highpass"]["value"] == 0 and self.parameters["lowpass"]["value"] == 0 and (
                     self.parameters["notch"]["value"] != 0):
-                return signal.notch_filter(self.parameters["notch"]["value"])
+                import numpy as np
+
+                if 3*self.parameters["notch"]["value"] <= signal.info["sfreq"]/2:
+                     return signal.notch_filter(np.arange(self.parameters["notch"]["value"], 3*self.parameters["notch"]["value"], self.parameters["notch"]["value"]))
+                elif 2*self.parameters["notch"]["value"] <= signal.info["sfreq"]/2:
+                     return signal.notch_filter(np.arange(self.parameters["notch"]["value"], 2*self.parameters["notch"]["value"], self.parameters["notch"]["value"]))
+                else:
+                    return signal.notch_filter(self.parameters["notch"]["value"])
             else:
                 return signal
         except ValueError as e:
+           msg = QMessageBox()
+           msg.setWindowTitle("Operation denied")
+           msg.setText(str(e))
+           msg.setIcon(QMessageBox.Warning)
+           messageError = msg.exec()
+           return signal
+        except TypeError as e:
            msg = QMessageBox()
            msg.setWindowTitle("Operation denied")
            msg.setText(str(e))
