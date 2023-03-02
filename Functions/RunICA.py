@@ -299,6 +299,7 @@ class ICAAnalysis(QDialog):
                     ax1.plot(n_samp, tempComp[0][0], linewidth=1, color='black')
                     ax1.set_title("Andamento temporale della componente ICA"+str(index))
                     ax1.set_xlabel("Time(s)")
+                    ax1.set_ylabel("uV")
                     ax1.grid(True)
                     ica_data = ica_component[np.newaxis, :]
                     sfreq = self.signal.info['sfreq']
@@ -306,7 +307,7 @@ class ICAAnalysis(QDialog):
                     ax2.plot(frequencies, power[0], linewidth=1)
                     ax2.set_title("Spettro della componente ICA"+str(index))
                     ax2.set_xlabel("Frequencies(Hz)")
-                    ax2.set_ylabel("Power Spectral Density")
+                    ax2.set_ylabel("Power Spectral Density uV\u00B2/Hz")
                     ax2.grid(True)
                     fig.tight_layout()
                     plt.show()
