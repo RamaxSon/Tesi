@@ -21,7 +21,6 @@ class Function:
     """Funzione che si occupa di impostare i canali come 'bad'"""
 
     """Definizione parametri della funzione"""
-
     def __init__(self):
         self.needSignal = True
         self.parameters = {"bads": {"type": "list", "value": None, "default": []}}

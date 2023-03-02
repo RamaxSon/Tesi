@@ -60,7 +60,7 @@ class Function:
             self.parameters["n_components"]["value"] = numC.result()  # , self.montage
             fit_params = {}
             if self.parameters["method"]["value"] != "picard":
-                fit_params["extended"] = self.parameters["method"]["others"]["extends"]
+                fit_params["extended"] = self.parameters["method"]["others"]["value"]
             signal.filter(l_freq=1., h_freq=None)  # ICA works best with a highpass filter applied
             if len(fit_params.keys()) > 1:
                 ica = preprocessing.ICA(n_components=self.parameters["n_components"]["value"],

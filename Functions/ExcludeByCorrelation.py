@@ -12,7 +12,7 @@ class Function:
         self.needSignal = False
         self.parameters = {"soglia": {"type": "float", "value": None, "default": "0.5"},
                            "distance": {"type": "float", "value": None, "default": "0.3",
-                                        "desc": "Esprimere la distanza in metri nella quale calcolare la correlazione con i vicini(Considerare che servono i cm)"}}
+                                        "desc": "Esprimere la distanza in metri nella quale calcolare la correlazione con i vicini(Considerare che verranno calcolato come cm)"}}
 
     """Imposta i parametri della funzione"""
     def new(self, args):
