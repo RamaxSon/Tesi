@@ -45,8 +45,12 @@ class Pipeline:
 
         # PIPELINE
         data = {"pipeline": self.pipeline}  #"imports": self.imports
-        with open(nomefile + ".json", "w") as outfile:
-            json.dump(data, outfile, indent=1)
+        if ".json" in nomefile:
+            with open(nomefile, "w") as outfile:
+                json.dump(data, outfile, indent=1)
+        else:
+            with open(nomefile + ".json", "w") as outfile:
+                json.dump(data, outfile, indent=1)
         self.saveSignal()
 
     """Salvataggio segnale --> quale formato?"""

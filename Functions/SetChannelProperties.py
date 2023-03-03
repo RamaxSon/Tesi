@@ -39,6 +39,7 @@ class Function:
         try:
             if self.parameters["bads"]["value"] != []:
                signal.info["bads"] = self.parameters["bads"]["value"]
+               #signal.drop_channels(self.parameters["bads"]["value"])
             return signal
         except ValueError as e:
             msg = QMessageBox()

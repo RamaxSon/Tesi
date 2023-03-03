@@ -58,12 +58,13 @@ class Function:
         try:
             self.Correlation()
             if self.parameters["excluded"]["value"]:
-                signal.info["bads"] = self.parameters["excluded"]["value"]
-            return signal
+                self.signal.info["bads"] = self.parameters["excluded"]["value"]
+                #self.signal.drop_channels(self.parameters["excluded"]["value"])
+            return self.signal
         except ValueError as e:
             msg = QMessageBox()
             msg.setWindowTitle("Operation denied")
             msg.setText(str(e))
             msg.setIcon(QMessageBox.Warning)
             messageError = msg.exec()
-            return signal
+            return self.signal

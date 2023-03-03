@@ -280,9 +280,11 @@ class ICAAnalysis(QDialog):
             return
         else:
             try:
+                x = self.signal.copy()
+                x.drop_channels(self.signal.info["bads"])
                 import matplotlib.pyplot as plt
                 from math import trunc
-                from mne import viz
+                from mne import viz, pick_info
                 from mne.time_frequency import psd_array_welch
                 for index in indexes:
                     ica_component = self.ICA.get_components()[:, index]
@@ -294,7 +296,7 @@ class ICAAnalysis(QDialog):
                     tempComp = self.ICA.get_sources(self.signal)[index]
                     duration = trunc(len(self.signal)/int(self.signal.info["sfreq"]))
                     n_samp = np.linspace(0, duration, num=len(tempComp[0][0]))
-                    viz.plot_topomap(ica_component, self.signal.info, axes=ax3, show=False)
+                    viz.plot_topomap(ica_component, x.info, axes=ax3, show=False)
                     ax3.set_title("Topomap")
                     ax1.plot(n_samp, tempComp[0][0], linewidth=1, color='black')
                     ax1.set_title("Andamento temporale della componente ICA"+str(index))
