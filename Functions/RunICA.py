@@ -99,6 +99,7 @@ class otherParams(QDialog):
         self.setWindowTitle(FunctionName)
         self.param = Parameters
         self.checkCheckable = None
+        self.limit = limit
         vbox = QVBoxLayout(self)
         grid = QGridLayout()
         self.edit = {}
@@ -106,7 +107,7 @@ class otherParams(QDialog):
         left = 0
         right = 0
         validator = QDoubleValidator()
-        validator.setRange(0, float(limit))
+        validator.setRange(0, float(self.limit))
         key1 = "n_components"
         grid.addWidget(QLabel(key1), left, right)
         self.edit[key1] = QLineEdit()
@@ -160,7 +161,10 @@ class otherParams(QDialog):
     def result(self):
         if self.isNumeric(self.edit["n_components"].text()):
             if float(self.edit["n_components"].text()) > 1:
-                return int(self.edit["n_components"].text())  # , self.template
+                if float(self.edit["n_components"].text()) > self.limit:
+                    return None
+                else:
+                   return int(self.edit["n_components"].text())  # , self.template
             elif float(self.edit["n_components"].text()) > 0:
                 return float(self.edit["n_components"].text())  # , self.template
             else:
